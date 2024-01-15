@@ -1,0 +1,9 @@
+.paper {
+    max-width: 568px;
+    margin: auto;
+    padding: 32px;
+}
+
+.authMethodToggle {
+    align-self: center;
+}

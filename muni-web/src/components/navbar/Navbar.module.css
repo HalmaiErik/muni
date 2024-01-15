@@ -1,0 +1,6 @@
+.appTitle {
+    flex-grow: 1 !important;
+    font-family: monospace !important;
+    font-weight: 700 !important;
+    letter-spacing: .3rem !important;
+}
