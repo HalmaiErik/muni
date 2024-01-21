@@ -17,11 +17,16 @@ export type RequisitionDto = {
 export type CreateCustomerRequest = {
     email: string;
     requisitionId: string;
+    institutionName: string;
+    institutionLogo: string;
 };
 
-export type AccountDetailsDto = {
-    resourceId: string;
+export type AccountDto = {
+    externalId: string;
+    name: string;
     iban: string;
     currency: string;
-    name: string;
+    expirationDate: Date;
+    institutionName: string;
+    institutionLogo: string;
 }

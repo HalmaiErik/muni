@@ -1,9 +1,7 @@
 package com.muni.bankaccountdata;
 
-import com.muni.bankaccountdata.api.gocardless.GoCardlessApiImpl;
 import com.muni.bankaccountdata.service.AccountDataService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;

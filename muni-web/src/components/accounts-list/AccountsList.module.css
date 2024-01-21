@@ -3,6 +3,13 @@
     margin: auto;
 }
 
-.card {
-    padding: 32px !important;
+.cardAction {
+    display: flex !important;
+    justify-content: left !important;
+}
+
+.cardMedia {
+    width: 50px !important;
+    display: flex !important;
+    flex-direction: column !important;
 }

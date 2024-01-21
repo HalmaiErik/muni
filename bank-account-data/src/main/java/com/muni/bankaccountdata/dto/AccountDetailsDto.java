@@ -1,29 +1,20 @@
 package com.muni.bankaccountdata.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.muni.bankaccountdata.dto.deserializer.AccountDetailsDeserializer;
-import lombok.AllArgsConstructor;
+import com.muni.bankaccountdata.dto.deserializer.AccountDetailsDtoDeserializer;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
-@AllArgsConstructor
 @Builder
-@JsonDeserialize(using = AccountDetailsDeserializer.class)
+@JsonDeserialize(using = AccountDetailsDtoDeserializer.class)
 public class AccountDetailsDto {
 
-    @JsonProperty("resourceId")
-    private String id;
+    private String resourceId;
 
-    @JsonProperty("iban")
     private String iban;
 
-    @JsonProperty("currency")
     private String currency;
 
-    @JsonProperty("name")
     private String name;
 }

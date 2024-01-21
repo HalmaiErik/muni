@@ -1,7 +1,7 @@
 package com.muni.bankaccountdata.db.entity;
 
-import com.muni.bankaccountdata.db.entity.enums.TransactionColumn;
 import com.muni.bankaccountdata.db.entity.enums.Operation;
+import com.muni.bankaccountdata.db.entity.enums.TransactionColumn;
 import jakarta.persistence.*;
 
 @Entity

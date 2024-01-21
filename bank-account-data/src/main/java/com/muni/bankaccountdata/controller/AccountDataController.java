@@ -1,9 +1,12 @@
 package com.muni.bankaccountdata.controller;
 
-import com.muni.bankaccountdata.dto.*;
+import com.muni.bankaccountdata.dto.AccountDto;
+import com.muni.bankaccountdata.dto.AccountTransactionDto;
+import com.muni.bankaccountdata.dto.InstitutionDto;
+import com.muni.bankaccountdata.dto.RequisitionDto;
 import com.muni.bankaccountdata.exception.ApiException;
-import com.muni.bankaccountdata.request.CreateRequisitionRequest;
 import com.muni.bankaccountdata.request.CreateCustomerRequest;
+import com.muni.bankaccountdata.request.CreateRequisitionRequest;
 import com.muni.bankaccountdata.service.AccountDataService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,16 +33,16 @@ public class AccountDataController {
     @PostMapping("/requisitions")
     public ResponseEntity<RequisitionDto> createRequisition(@RequestBody CreateRequisitionRequest createRequisitionRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(accountDataService.createRequisition(createRequisitionRequest.getInstitutionId(), createRequisitionRequest.getRedirectUrl()));
+                .body(accountDataService.createRequisition(createRequisitionRequest));
     }
 
     @PostMapping("/customer/create")
     public void createCustomer(@RequestBody CreateCustomerRequest createCustomerRequest) {
-        accountDataService.createCustomer(createCustomerRequest.getEmail(), createCustomerRequest.getRequisitionId());
+        accountDataService.createCustomer(createCustomerRequest);
     }
 
     @GetMapping("/accounts/{email}")
-    public ResponseEntity<List<AccountDetailsDto>> getCustomerAccounts(@PathVariable String email) {
+    public ResponseEntity<List<AccountDto>> getCustomerAccounts(@PathVariable String email) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(accountDataService.getCustomerAccounts(email));
@@ -51,7 +54,7 @@ public class AccountDataController {
     }
 
     @GetMapping("/transactions/{accountId}")
-    public ResponseEntity<List<TransactionDto>> getAccountTransactions(@PathVariable String accountId) {
+    public ResponseEntity<List<AccountTransactionDto>> getAccountTransactions(@PathVariable String accountId) {
         return null;
     }
 }

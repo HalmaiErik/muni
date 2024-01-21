@@ -68,11 +68,11 @@ public class GoCardlessApiImpl implements GoCardlessApi {
     }
 
     @Override
-    public ResponseEntity<AccountIdsDto> getRequisitionAccountIds(String accessToken, String requisitionId) {
+    public ResponseEntity<AccountIdListDto> getRequisitionAccountIds(String accessToken, String requisitionId) {
         HttpHeaders headers = createAuthenticatedHttpHeaders(accessToken);
         HttpEntity entity = new HttpEntity(headers);
 
-        return restTemplate.exchange(ACCOUNT_IDS_URL, HttpMethod.GET, entity, AccountIdsDto.class, requisitionId);
+        return restTemplate.exchange(ACCOUNT_IDS_URL, HttpMethod.GET, entity, AccountIdListDto.class, requisitionId);
     }
 
     @Override
@@ -92,11 +92,11 @@ public class GoCardlessApiImpl implements GoCardlessApi {
     }
 
     @Override
-    public ResponseEntity<AccountTransactionsDto> getAccountTransactions(String accessToken, String accountId) {
+    public ResponseEntity<AccountTransactionListDto> getAccountTransactions(String accessToken, String accountId) {
         HttpHeaders headers = createAuthenticatedHttpHeaders(accessToken);
         HttpEntity entity = new HttpEntity(headers);
 
-        return restTemplate.exchange(ACCOUNT_TRANSACTIONS_URL, HttpMethod.GET, entity, AccountTransactionsDto.class, accountId);
+        return restTemplate.exchange(ACCOUNT_TRANSACTIONS_URL, HttpMethod.GET, entity, AccountTransactionListDto.class, accountId);
     }
 
     private HttpHeaders createAuthenticatedHttpHeaders(String accessToken) {

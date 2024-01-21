@@ -6,38 +6,39 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "account")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Account {
+public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String externalId;
 
-    private String name;
+    private String debtorName;
 
-    private String iban;
+    private String debtorAccount;
 
-    private String currency;
+    private String creditorName;
 
-    private String requisitionId;
+    private String creditorAccount;
 
-    private LocalDate expirationDate;
+    private Double amount;
 
-    private String institutionName;
+    private String bookingDate;
 
-    private String institutionLogo;
+    private String remittanceInfo;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
 }

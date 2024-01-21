@@ -2,16 +2,16 @@ import { Paper, Stack } from "@mui/material";
 import Auth from "../../components/auth/Auth"
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./Home.module.css"
-import LogoutButton from "../../components/auth/LogoutButton";
 import BankInstitutionSelection from "../bank-institution-selection/BankInstitutionSelection";
 import { useEffect, useState } from "react";
-import { AccountDetailsDto } from "../../api/dtos";
+import { AccountDto } from "../../api/dtos";
 import { createCustomer, getCustomerAccounts } from "../../api/bank-account-data-api";
 import { useSearchParams } from "react-router-dom";
 import AccountsList from "../../components/accounts-list/AccountsList";
+import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME } from "../../constants/constants";
 
 const Home = () => {
-    const [accounts, setAccounts] = useState<AccountDetailsDto[]>();
+    const [accounts, setAccounts] = useState<AccountDto[]>();
     const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const requisitionId = searchParams.get("ref");
@@ -21,8 +21,13 @@ const Home = () => {
     }, [currentUser]);
 
     useEffect(() => {
-        if (requisitionId && currentUser && currentUser.email) {
-            createCustomer({ email: currentUser.email, requisitionId })
+        const institutionName = window.localStorage.getItem(LOCAL_STORAGE_INSTITUTION_NAME);
+        const institutionLogo = window.localStorage.getItem(LOCAL_STORAGE_INSTITUTION_LOGO);
+        if (requisitionId && currentUser && currentUser.email && institutionName && institutionLogo) {
+            window.localStorage.removeItem(LOCAL_STORAGE_INSTITUTION_NAME);
+            window.localStorage.removeItem(LOCAL_STORAGE_INSTITUTION_LOGO);
+
+            createCustomer({ email: currentUser.email, requisitionId, institutionName, institutionLogo })
                 .then(() => getAccounts());
         }
     }, []);
@@ -32,7 +37,6 @@ const Home = () => {
         if (currentUser && currentUser.email) {
             getCustomerAccounts(currentUser.email)
                 .then((data) => {
-                    console.log(data);
                     setAccounts(data);
                 }
                 );

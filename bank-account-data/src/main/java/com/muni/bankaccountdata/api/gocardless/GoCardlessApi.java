@@ -19,8 +19,8 @@ public interface GoCardlessApi {
     ResponseEntity<AccessTokenRefreshDto> refreshAccessToken(String refreshToken);
     ResponseEntity<InstitutionDto[]> getCountryInstitutions(String accessToken, String countryCode);
     ResponseEntity<RequisitionDto> createRequisition(String accessToken, String userReference, String institutionId);
-    ResponseEntity<AccountIdsDto> getRequisitionAccountIds(String accessToken, String requisitionId);
+    ResponseEntity<AccountIdListDto> getRequisitionAccountIds(String accessToken, String requisitionId);
     ResponseEntity<AccountDetailsDto> getAccountDetails(String accessToken, String accountId);
     ResponseEntity<BalancesDto> getAccountBalances(String accessToken, String accountId);
-    ResponseEntity<AccountTransactionsDto> getAccountTransactions(String accessToken, String accountId);
+    ResponseEntity<AccountTransactionListDto> getAccountTransactions(String accessToken, String accountId);
 }

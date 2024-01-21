@@ -2,7 +2,7 @@ import { Avatar, List, ListItemButton, ListItemAvatar, ListItemText, Typography 
 import { useEffect, useState } from "react";
 import { createRequisition, getCountryInstitutions } from "../../api/bank-account-data-api";
 import { InstitutionDto } from "../../api/dtos";
-import { WEB_HOME_URL, WEB_SAVE_CUSTOMER_URL } from "../../constants/constants";
+import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, WEB_HOME_URL, WEB_SAVE_CUSTOMER_URL } from "../../constants/constants";
 
 type Props = {
     saveCustomer: boolean;
@@ -21,7 +21,8 @@ const BankInstitutionSelection = ({ saveCustomer }: Props) => {
     const onSelectInstitution = (institution: InstitutionDto) => {
         createRequisition({ institutionId: institution.id, redirectUrl: redirectUrl })
             .then(req => {
-                console.log(req);
+                window.localStorage.setItem(LOCAL_STORAGE_INSTITUTION_NAME, institution.name);
+                window.localStorage.setItem(LOCAL_STORAGE_INSTITUTION_LOGO, institution.logo);
                 window.location.href = req.link;
             });
     }

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AccountIdsDto {
+public class AccountIdListDto {
 
     @JsonProperty("accounts")
     private List<String> ids;

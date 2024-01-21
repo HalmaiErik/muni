@@ -8,6 +8,8 @@ import com.muni.bankaccountdata.db.repository.CustomerRepository;
 import com.muni.bankaccountdata.dto.*;
 import com.muni.bankaccountdata.exception.ApiException;
 import com.muni.bankaccountdata.model.AccessToken;
+import com.muni.bankaccountdata.request.CreateCustomerRequest;
+import com.muni.bankaccountdata.request.CreateRequisitionRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AccountDataService {
@@ -66,22 +67,23 @@ public class AccountDataService {
         return Arrays.asList(response.getBody());
     }
 
-    public RequisitionDto createRequisition(String institutionId, String redirectUrl) {
+    public RequisitionDto createRequisition(CreateRequisitionRequest createRequisitionRequest) {
         refreshAccessTokenIfExpired();
 
-        ResponseEntity<RequisitionDto> response = goCardlessApi.createRequisition(accessToken.getAccessToken(), institutionId, redirectUrl);
-        String exceptionMessage = REQUISITION_EXCEPTION_MSG.formatted(institutionId);
+        ResponseEntity<RequisitionDto> response = goCardlessApi.createRequisition(accessToken.getAccessToken(),
+                createRequisitionRequest.getInstitutionId(), createRequisitionRequest.getRedirectUrl());
+        String exceptionMessage = REQUISITION_EXCEPTION_MSG.formatted(createRequisitionRequest.getInstitutionId());
         validateResponse(response, exceptionMessage);
 
         return response.getBody();
     }
 
-    public void createCustomer(String email, String requisitionId) {
+    public void createCustomer(CreateCustomerRequest createCustomerRequest) {
         Customer newCustomer = customerRepository.save(Customer.builder()
-                .email(email)
+                .email(createCustomerRequest.getEmail())
                 .build());
 
-        List<String> accountIds = getAccountIds(requisitionId);
+        List<String> accountIds = getAccountIds(createCustomerRequest.getRequisitionId());
         for (String accountId : accountIds) {
             AccountDetailsDto accountDetails = getAccountDetails(accountId);
             Account newAccount = Account.builder()
@@ -89,64 +91,37 @@ public class AccountDataService {
                     .name(accountDetails.getName())
                     .iban(accountDetails.getIban())
                     .currency(accountDetails.getCurrency())
-                    .requisitionId(requisitionId)
+                    .requisitionId(createCustomerRequest.getRequisitionId())
                     .expirationDate(LocalDate.now().plusDays(DEFAULT_REQUISITION_VALIDITY_DAYS))
+                    .institutionName(createCustomerRequest.getInstitutionName())
+                    .institutionLogo(createCustomerRequest.getInstitutionLogo())
                     .customer(newCustomer)
                     .build();
             accountRepository.save(newAccount);
         }
     }
 
-    public void updateRequisition(String email, String requisitionId) {
-        Customer customer = customerRepository.findCustomerByEmail(email)
-                .orElseThrow(() -> new ApiException("No customer found with email " + email));
-
-        List<String> accountIds = getAccountIds(requisitionId);
-        for (String accountId : accountIds) {
-            Optional<Account> optionalAccount = accountRepository.findAccountByExternalId(accountId);
-            if (optionalAccount.isEmpty()) {
-                AccountDetailsDto accountDetails = getAccountDetails(accountId);
-                Account newAccount = Account.builder()
-                        .externalId(accountId)
-                        .name(accountDetails.getName())
-                        .iban(accountDetails.getIban())
-                        .currency(accountDetails.getCurrency())
-                        .requisitionId(requisitionId)
-                        .expirationDate(LocalDate.now().plusDays(DEFAULT_REQUISITION_VALIDITY_DAYS))
-                        .customer(customer)
-                        .build();
-                accountRepository.save(newAccount);
-            }
-            else {
-                Account account = optionalAccount.get();
-                account.setRequisitionId(requisitionId);
-                account.setExpirationDate(LocalDate.now().plusDays(DEFAULT_REQUISITION_VALIDITY_DAYS));
-                accountRepository.save(account);
-            }
-        }
-    }
-
-    public List<AccountDetailsDto> getCustomerAccounts(String email) {
+    public List<AccountDto> getCustomerAccounts(String email) {
         Customer customer = customerRepository.findCustomerByEmail(email)
                 .orElseThrow(() -> new ApiException("No customer found with email " + email));
 
         List<Account> accounts = accountRepository.findAllByCustomer_Id(customer.getId());
-        List<AccountDetailsDto> accountDetails = new LinkedList<>();
+        List<AccountDto> accountDtos = new LinkedList<>();
         for (Account account : accounts) {
-            AccountDetailsDto accountDetailsDto = AccountDetailsDto.builder()
-                    .id(account.getExternalId())
+            AccountDto accountDto = AccountDto.builder()
+                    .externalId(account.getExternalId())
+                    .name(account.getName())
                     .iban(account.getIban())
                     .currency(account.getCurrency())
-                    .name(account.getName())
+                    .expirationDate(account.getExpirationDate())
+                    .institutionName(account.getInstitutionName())
+                    .institutionLogo(account.getInstitutionLogo())
                     .build();
-            accountDetails.add(accountDetailsDto);
+
+            accountDtos.add(accountDto);
         }
 
-        return accountDetails;
-    }
-
-    public void deleteAllRequisitions() {
-
+        return accountDtos;
     }
 
     public void accessToken() {
@@ -156,7 +131,7 @@ public class AccountDataService {
     private List<String> getAccountIds(String requisitionId) {
         refreshAccessTokenIfExpired();
 
-        ResponseEntity<AccountIdsDto> response = goCardlessApi.getRequisitionAccountIds(accessToken.getAccessToken(), requisitionId);
+        ResponseEntity<AccountIdListDto> response = goCardlessApi.getRequisitionAccountIds(accessToken.getAccessToken(), requisitionId);
         String exceptionMessage = ACCOUNT_IDS_EXCEPTION_MSG.formatted(requisitionId);
         validateResponse(response, exceptionMessage);
 
@@ -173,16 +148,16 @@ public class AccountDataService {
         return response.getBody();
     }
 
-    private BalancesDto getAccountBalances(String accountId) {
-        ResponseEntity<BalancesDto> response = goCardlessApi.getAccountBalances(accessToken.getAccessToken(), accountId);
-        String exceptionMessage = ACCOUNT_BALANCES_EXCEPTION_MSG.formatted(accountId);
-        validateResponse(response, exceptionMessage);
+//    private BalancesDto getAccountBalances(String accountId) {
+//        ResponseEntity<BalancesDto> response = goCardlessApi.getAccountBalances(accessToken.getAccessToken(), accountId);
+//        String exceptionMessage = ACCOUNT_BALANCES_EXCEPTION_MSG.formatted(accountId);
+//        validateResponse(response, exceptionMessage);
+//
+//        return response.getBody();
+//    }
 
-        return response.getBody();
-    }
-
-    private TransactionsDto getAccountTransactions(String accountId) {
-        ResponseEntity<AccountTransactionsDto> response = goCardlessApi.getAccountTransactions(accessToken.getAccessToken(), accountId);
+    private List<AccountTransactionDto> getAccountTransactions(String accountId) {
+        ResponseEntity<AccountTransactionListDto> response = goCardlessApi.getAccountTransactions(accessToken.getAccessToken(), accountId);
         String exceptionMessage = ACCOUNT_TRANSACTIONS_EXCEPTION_MSG.formatted(accountId);
         validateResponse(response, exceptionMessage);
 
