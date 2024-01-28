@@ -26,8 +26,8 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
     private List<Account> accounts;
 
-//    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
-//    private List<Category> categories;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
+    private List<Category> categories;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
     private List<Rule> rules;

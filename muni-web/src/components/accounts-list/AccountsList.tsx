@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardContent, CardMedia, Paper, Stack, Typography } from "@mui/material";
+import { Button, Card, CardActionArea, CardContent, CardMedia, Grid, Paper, Stack, Typography } from "@mui/material";
 import { AccountDto } from "../../api/dtos";
 import styles from "./AccountsList.module.css"
 import { useNavigate } from "react-router-dom";
@@ -10,8 +10,8 @@ type Props = {
 const AccountsList = ({ accounts }: Props) => {
     const navigate = useNavigate();
 
-    const onSelectAccount = (accountId: string) => {
-        navigate(`/${accountId}`);
+    const onSelectAccount = (accountExternalId: string) => {
+        navigate(`/${accountExternalId}`);
     };
 
     return (
@@ -19,22 +19,45 @@ const AccountsList = ({ accounts }: Props) => {
             {accounts.map((account, index) =>
                 <div key={index} className={styles.container}>
                     <Card>
-                        <CardActionArea className={styles.cardAction} onClick={() => onSelectAccount(account.externalId)}>
-                            <CardMedia className={styles.cardMedia} component="img" image={account.institutionLogo} />
-                            <CardContent>
-                                <Stack>
-                                    <Typography variant="button" gutterBottom>
-                                        {account.name}
-                                    </Typography>
-                                    <Typography variant="overline" gutterBottom>
-                                        {account.iban}
-                                    </Typography>
-                                    <Typography variant="overline" gutterBottom>
-                                        {account.institutionName}
-                                    </Typography>
-                                </Stack>
-                            </CardContent>
-                        </CardActionArea>
+                        <CardContent
+                            sx={{
+                                display: 'flex',
+                            }}
+                        >
+                            <div style={{ flexGrow: 1 }}>
+                                <Grid container>
+                                    <CardMedia
+                                        sx={{
+                                            height: 60,
+                                            width: 60,
+                                            alignSelf: 'center',
+                                            flexDirection: 'column',
+                                            marginRight: '24px'
+                                        }}
+                                        component="img"
+                                        image={account.institutionLogo}
+                                    />
+                                    <Stack spacing={0.2}>
+                                        <h2>{account.name}</h2>
+                                        <p>{account.iban}</p>
+                                        <p>{account.institutionName}</p>
+                                    </Stack>
+                                </Grid>
+                            </div>
+
+                            <Button
+                                sx={{
+                                    maxHeight: '48px',
+                                    alignSelf: 'center'
+                                }}
+                                disabled={false}
+                                size="medium"
+                                variant="outlined"
+                                onClick={() => onSelectAccount(account.externalId)}
+                            >
+                                View details
+                            </Button>
+                        </CardContent>
                     </Card>
                 </div>
             )

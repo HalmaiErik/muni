@@ -1,6 +1,14 @@
 package com.muni.bankaccountdata.api.gocardless;
 
+import com.muni.bankaccountdata.api.Api;
 import com.muni.bankaccountdata.dto.*;
+import com.muni.bankaccountdata.dto.gocardless.AccountDetailsDto;
+import com.muni.bankaccountdata.dto.gocardless.AccountIdListDto;
+import com.muni.bankaccountdata.dto.gocardless.AccountTransactionListDto;
+import com.muni.bankaccountdata.dto.shared.AccessTokenCreationDto;
+import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
+import com.muni.bankaccountdata.dto.shared.InstitutionDto;
+import com.muni.bankaccountdata.dto.shared.RequisitionDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -29,7 +37,7 @@ public class GoCardlessApiImpl implements GoCardlessApi {
     @Override
     @PostConstruct
     public ResponseEntity<AccessTokenCreationDto> createAccessToken() {
-        HttpHeaders headers = createHttpHeaders();
+        HttpHeaders headers = Api.createHttpHeaders();
         Map<String, String> body = new HashMap<>();
         body.put("secret_id", SECRET_ID);
         body.put("secret_key", SECRET_KEY);
@@ -40,7 +48,7 @@ public class GoCardlessApiImpl implements GoCardlessApi {
 
     @Override
     public ResponseEntity<AccessTokenRefreshDto> refreshAccessToken(String refreshToken) {
-        HttpHeaders headers = createHttpHeaders();
+        HttpHeaders headers = Api.createHttpHeaders();
         Map<String, String> body = new HashMap<>();
         body.put("refresh", refreshToken);
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
@@ -100,15 +108,8 @@ public class GoCardlessApiImpl implements GoCardlessApi {
     }
 
     private HttpHeaders createAuthenticatedHttpHeaders(String accessToken) {
-        HttpHeaders headers = createHttpHeaders();
+        HttpHeaders headers = Api.createHttpHeaders();
         headers.setBearerAuth(accessToken);
-        return headers;
-    }
-
-    private HttpHeaders createHttpHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         return headers;
     }
 }

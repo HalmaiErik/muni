@@ -4,21 +4,9 @@ export type InstitutionDto = {
     logo: string;
 };
 
-export type CreateRequisitionRequest = {
-    institutionId: string;
-    redirectUrl: string;
-};
-
 export type RequisitionDto = {
     id: string;
     link: string;
-};
-
-export type CreateCustomerRequest = {
-    email: string;
-    requisitionId: string;
-    institutionName: string;
-    institutionLogo: string;
 };
 
 export type AccountDto = {
@@ -29,4 +17,12 @@ export type AccountDto = {
     expirationDate: Date;
     institutionName: string;
     institutionLogo: string;
+}
+
+export type TransactionDto = {
+    externalId: string;
+    refFromInstitution: string;
+    amount: number;
+    bookingDate: Date;
+    remittanceInfo: string;
 }

@@ -6,8 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.Set;
+
 @Entity
-@Table(name = "account")
+@Table(name = "transaction")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,19 +21,14 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String externalId;
 
-    private String debtorName;
-
-    private String debtorAccount;
-
-    private String creditorName;
-
-    private String creditorAccount;
+    private String refFromInstitution;
 
     private Double amount;
 
-    private String bookingDate;
+    private LocalDate bookingDate;
 
     private String remittanceInfo;
 
@@ -41,4 +39,7 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @ManyToMany(mappedBy = "transactions")
+    private Set<Category> categories;
 }

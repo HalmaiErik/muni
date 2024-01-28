@@ -5,6 +5,7 @@ import Home from './pages/home/Home';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/navbar/Navbar';
 import styles from './App.module.css'
+import Account from './pages/account/Account';
 
 const darkTheme = createTheme({
   palette: {
@@ -22,6 +23,7 @@ function App() {
           <div className={styles.pageContent}>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/:accountExternalId" element={<Account />} />
             </Routes>
           </div>
         </AuthProvider>

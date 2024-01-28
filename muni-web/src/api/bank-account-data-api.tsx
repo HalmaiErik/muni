@@ -1,5 +1,6 @@
 import { LOCAL_STORAGE_TOKEN_KEY } from "../constants/constants";
-import { CreateRequisitionRequest, CreateCustomerRequest, AccountDto, RequisitionDto, InstitutionDto } from "./dtos";
+import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto } from "./dtos";
+import { CreateCustomerRequest, CreateRequisitionRequest, GetAccountTransactionsRequest } from "./requests";
 
 const baseUrl = 'http://localhost:8080/api/v1/bankaccount';
 
@@ -38,7 +39,6 @@ const createCustomer = async (request: CreateCustomerRequest) => {
     });
 }
 
-// TODO: maybe need request obj for this
 const getCustomerAccounts = async (email: string) => {
     const response = await fetch(baseUrl + '/accounts/' + email, {
         method: 'get',
@@ -50,4 +50,23 @@ const getCustomerAccounts = async (email: string) => {
     return data;
 }
 
-export { getCountryInstitutions, createRequisition, createCustomer, getCustomerAccounts };
+const getAccountTransactions = async (request: GetAccountTransactionsRequest) => {
+    const response = await fetch(baseUrl + '/account/transactions', {
+        method: 'post',
+        headers: new Headers({
+            'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+            'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(request)
+    });
+    const data: TransactionDto[] = await response.json();
+    return data;
+}
+
+export {
+    getCountryInstitutions,
+    createRequisition,
+    createCustomer,
+    getCustomerAccounts,
+    getAccountTransactions
+};

@@ -1,19 +1,19 @@
 package com.muni.bankaccountdata.controller;
 
-import com.muni.bankaccountdata.dto.AccountDto;
-import com.muni.bankaccountdata.dto.AccountTransactionDto;
-import com.muni.bankaccountdata.dto.InstitutionDto;
-import com.muni.bankaccountdata.dto.RequisitionDto;
+import com.muni.bankaccountdata.dto.internal.AccountDto;
+import com.muni.bankaccountdata.dto.internal.TransactionDto;
+import com.muni.bankaccountdata.dto.shared.InstitutionDto;
+import com.muni.bankaccountdata.dto.shared.RequisitionDto;
 import com.muni.bankaccountdata.exception.ApiException;
 import com.muni.bankaccountdata.request.CreateCustomerRequest;
 import com.muni.bankaccountdata.request.CreateRequisitionRequest;
+import com.muni.bankaccountdata.request.GetAccountTransactionsRequest;
 import com.muni.bankaccountdata.service.AccountDataService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -33,28 +33,25 @@ public class AccountDataController {
     @PostMapping("/requisitions")
     public ResponseEntity<RequisitionDto> createRequisition(@RequestBody CreateRequisitionRequest createRequisitionRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(accountDataService.createRequisition(createRequisitionRequest));
+                .body(accountDataService.createRequisition(createRequisitionRequest.getInstitutionId(),
+                        createRequisitionRequest.getRedirectUrl()));
     }
 
     @PostMapping("/customer/create")
-    public void createCustomer(@RequestBody CreateCustomerRequest createCustomerRequest) {
-        accountDataService.createCustomer(createCustomerRequest);
+    public void createCustomer(@RequestBody CreateCustomerRequest request) {
+        accountDataService.createCustomer(request.getEmail(), request.getRequisitionId(),
+                request.getInstitutionName(), request.getInstitutionLogo());
     }
 
     @GetMapping("/accounts/{email}")
     public ResponseEntity<List<AccountDto>> getCustomerAccounts(@PathVariable String email) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(accountDataService.getCustomerAccounts(email));
-        }
-        catch (ApiException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new LinkedList<>());
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountDataService.getCustomerAccounts(email));
     }
 
-    @GetMapping("/transactions/{accountId}")
-    public ResponseEntity<List<AccountTransactionDto>> getAccountTransactions(@PathVariable String accountId) {
-        return null;
+    @PostMapping("/account/transactions")
+    public ResponseEntity<List<TransactionDto>> accountTransactions(@RequestBody GetAccountTransactionsRequest request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountDataService.getAccountTransactions(request.getEmail(), request.getAccountExternalId(), request.isRefresh()));
     }
 }

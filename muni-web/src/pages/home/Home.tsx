@@ -2,7 +2,7 @@ import { Paper, Stack } from "@mui/material";
 import Auth from "../../components/auth/Auth"
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./Home.module.css"
-import BankInstitutionSelection from "../bank-institution-selection/BankInstitutionSelection";
+import BankInstitutionSelection from "../../components/bank-institution-selection/BankInstitutionSelection";
 import { useEffect, useState } from "react";
 import { AccountDto } from "../../api/dtos";
 import { createCustomer, getCustomerAccounts } from "../../api/bank-account-data-api";
@@ -11,7 +11,7 @@ import AccountsList from "../../components/accounts-list/AccountsList";
 import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME } from "../../constants/constants";
 
 const Home = () => {
-    const [accounts, setAccounts] = useState<AccountDto[]>();
+    const [accounts, setAccounts] = useState<AccountDto[]>([]);
     const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const requisitionId = searchParams.get("ref");
@@ -32,27 +32,30 @@ const Home = () => {
         }
     }, []);
 
-
     const getAccounts = () => {
         if (currentUser && currentUser.email) {
             getCustomerAccounts(currentUser.email)
                 .then((data) => {
                     setAccounts(data);
-                }
-                );
+                });
         }
     };
 
     return (
         <>
-            {accounts && accounts.length === 0 && (
-                <Paper className={styles.authPaper}>
+            {accounts.length === 0 && (
+                <Paper
+                    sx={{
+                        maxWidth: '512px',
+                        margin: 'auto',
+                        padding: '32px'
+                    }}
+                >
                     {!currentUser && <Auth />}
-                    {currentUser && accounts && accounts.length === 0 && <BankInstitutionSelection saveCustomer={false} />}
-                    {currentUser && accounts && accounts.length !== 0 && JSON.stringify(accounts)}
+                    {currentUser && <BankInstitutionSelection />}
                 </Paper>
             )}
-            {accounts && accounts.length !== 0 && (
+            {accounts.length !== 0 && (
                 <AccountsList accounts={accounts} />
             )}
         </>

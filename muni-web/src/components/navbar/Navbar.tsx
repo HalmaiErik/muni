@@ -27,7 +27,15 @@ const Navbar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography className={styles.appTitle} variant="h6" component="div">
+        <Typography
+          sx={{
+            flexGrow: 1,
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            letterSpacing: '.3rem'
+          }}
+          variant="h6"
+          component="div">
           Muni
         </Typography>
         {currentUser && (
