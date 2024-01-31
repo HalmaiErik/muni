@@ -3,7 +3,7 @@ package com.muni.bankaccountdata.db.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "rule")
@@ -14,10 +14,14 @@ public class Rule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
+    private String colorCode;
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @OneToMany(mappedBy = "rule")
-    private List<Condition> conditions;
+    private Set<Condition> conditions;
 }

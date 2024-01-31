@@ -10,10 +10,10 @@ import com.muni.bankaccountdata.api.frankfurter.FrankfurterApiImpl;
 import com.muni.bankaccountdata.dto.frankfurter.ConversionRateToUsd;
 import com.muni.bankaccountdata.dto.gocardless.AccountTransactionDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountTransactionListDto;
+import com.muni.bankaccountdata.dto.util.DeserializerUtil;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,11 +25,8 @@ public class AccountTransactionListDtoDeserializer extends JsonDeserializer<Acco
     private static final String INTERNAL_TRANSACTION_ID = "internalTransactionId";
     private static final String TRANSACTION_ID = "transactionId";
     private static final String TRANSACTION_AMOUNT = "transactionAmount";
-    private static final String AMOUNT = "amount";
-    private static final String CURRENCY = "currency";
     private static final String BOOKING_DATE = "bookingDate";
     private static final String REMITTANCE_INFORMATION_UNSTRUCTURED = "remittanceInformationUnstructured";
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
     private final FrankfurterApi frankfurterApi = new FrankfurterApiImpl();
 
@@ -43,8 +40,8 @@ public class AccountTransactionListDtoDeserializer extends JsonDeserializer<Acco
 
             String transactionId = child.get(INTERNAL_TRANSACTION_ID).asText();
             String refFromInstitution = child.get(TRANSACTION_ID).asText();
-            double amount = child.get(TRANSACTION_AMOUNT).get(AMOUNT).asDouble();
-            String currency = child.get(TRANSACTION_AMOUNT).get(CURRENCY).asText();
+            double amount = child.get(TRANSACTION_AMOUNT).get(DeserializerUtil.AMOUNT).asDouble();
+            String currency = child.get(TRANSACTION_AMOUNT).get(DeserializerUtil.CURRENCY).asText();
             String bookingDate = child.get(BOOKING_DATE).asText();
             String description = child.has(REMITTANCE_INFORMATION_UNSTRUCTURED) ?
                     child.get(REMITTANCE_INFORMATION_UNSTRUCTURED).asText() : "";
@@ -55,7 +52,7 @@ public class AccountTransactionListDtoDeserializer extends JsonDeserializer<Acco
             accountTransactionDtos.add(AccountTransactionDto.builder()
                     .transactionId(transactionId)
                     .refFromInstitution(refFromInstitution)
-                    .amount(Double.valueOf(DECIMAL_FORMAT.format(amount * currencyConversionRateToUsd)))
+                    .amount(Double.valueOf(DeserializerUtil.DECIMAL_FORMAT.format(amount * currencyConversionRateToUsd)))
                     .bookingDate(LocalDate.parse(bookingDate))
                     .remittanceInfo(description)
                     .build());

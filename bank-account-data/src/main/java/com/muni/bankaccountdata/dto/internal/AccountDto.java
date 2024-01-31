@@ -3,8 +3,6 @@ package com.muni.bankaccountdata.dto.internal;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
 @Builder
 public class AccountDto {
@@ -17,9 +15,15 @@ public class AccountDto {
 
     private String currency;
 
-    private LocalDate expirationDate;
+    private Status status;
 
     private String institutionName;
 
     private String institutionLogo;
+
+    private Double balance;
+
+    public enum Status {
+        ACTIVE, EXPIRED;
+    }
 }

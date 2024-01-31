@@ -10,4 +10,5 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findAllByAccount_IdOrderByBookingDateDesc(Long accountId);
+    boolean existsTransactionByExternalId(String externalId);
 }

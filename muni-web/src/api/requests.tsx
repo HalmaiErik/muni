@@ -10,7 +10,7 @@ export type CreateCustomerRequest = {
     institutionLogo: string;
 };
 
-export type GetAccountTransactionsRequest = {
+export type AccountFullInfoRequest = {
     email: string;
     accountExternalId: string;
     refresh: boolean;

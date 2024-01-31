@@ -1,7 +1,7 @@
 package com.muni.bankaccountdata.api.gocardless;
 
 import com.muni.bankaccountdata.api.Api;
-import com.muni.bankaccountdata.dto.*;
+import com.muni.bankaccountdata.dto.gocardless.AccountBalanceDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountDetailsDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountIdListDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountTransactionListDto;
@@ -10,12 +10,14 @@ import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
 import com.muni.bankaccountdata.dto.shared.RequisitionDto;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,11 +94,11 @@ public class GoCardlessApiImpl implements GoCardlessApi {
     }
 
     @Override
-    public ResponseEntity<BalancesDto> getAccountBalances(String accessToken, String accountId) {
+    public ResponseEntity<AccountBalanceDto> getAccountBalance(String accessToken, String accountId) {
         HttpHeaders headers = createAuthenticatedHttpHeaders(accessToken);
         HttpEntity entity = new HttpEntity(headers);
 
-        return restTemplate.exchange(ACCOUNT_BALANCES_URL, HttpMethod.GET, entity, BalancesDto.class, accountId);
+        return restTemplate.exchange(ACCOUNT_BALANCES_URL, HttpMethod.GET, entity, AccountBalanceDto.class, accountId);
     }
 
     @Override

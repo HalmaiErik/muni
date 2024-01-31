@@ -28,7 +28,7 @@ const TransactionsTable = ({ transactions }: Props) => {
                             </TableCell>
                             <TableCell align="justify">{transaction.amount}</TableCell>
                             <TableCell align="justify">{transaction.bookingDate.toString()}</TableCell>
-                            <TableCell align="justify">{transaction.remittanceInfo}</TableCell>
+                            <TableCell align="justify">{transaction.remittanceInfo || 'None'}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

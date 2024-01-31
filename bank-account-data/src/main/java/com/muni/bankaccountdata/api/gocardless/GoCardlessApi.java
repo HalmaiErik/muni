@@ -1,7 +1,7 @@
 package com.muni.bankaccountdata.api.gocardless;
 
 import com.muni.bankaccountdata.api.Api;
-import com.muni.bankaccountdata.dto.*;
+import com.muni.bankaccountdata.dto.gocardless.AccountBalanceDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountDetailsDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountIdListDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountTransactionListDto;
@@ -29,6 +29,6 @@ public interface GoCardlessApi extends Api {
     ResponseEntity<RequisitionDto> createRequisition(String accessToken, String userReference, String institutionId);
     ResponseEntity<AccountIdListDto> getRequisitionAccountIds(String accessToken, String requisitionId);
     ResponseEntity<AccountDetailsDto> getAccountDetails(String accessToken, String accountId);
-    ResponseEntity<BalancesDto> getAccountBalances(String accessToken, String accountId);
+    ResponseEntity<AccountBalanceDto> getAccountBalance(String accessToken, String accountId);
     ResponseEntity<AccountTransactionListDto> getAccountTransactions(String accessToken, String accountId);
 }

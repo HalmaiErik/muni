@@ -1,13 +1,12 @@
 package com.muni.bankaccountdata.controller;
 
 import com.muni.bankaccountdata.dto.internal.AccountDto;
-import com.muni.bankaccountdata.dto.internal.TransactionDto;
+import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
 import com.muni.bankaccountdata.dto.shared.RequisitionDto;
-import com.muni.bankaccountdata.exception.ApiException;
+import com.muni.bankaccountdata.request.AccountFullInfoRequest;
 import com.muni.bankaccountdata.request.CreateCustomerRequest;
 import com.muni.bankaccountdata.request.CreateRequisitionRequest;
-import com.muni.bankaccountdata.request.GetAccountTransactionsRequest;
 import com.muni.bankaccountdata.service.AccountDataService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,9 +48,9 @@ public class AccountDataController {
                 .body(accountDataService.getCustomerAccounts(email));
     }
 
-    @PostMapping("/account/transactions")
-    public ResponseEntity<List<TransactionDto>> accountTransactions(@RequestBody GetAccountTransactionsRequest request) {
+    @PostMapping("/account")
+    public ResponseEntity<AccountFullInfoDto> accountFullInfo(@RequestBody AccountFullInfoRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(accountDataService.getAccountTransactions(request.getEmail(), request.getAccountExternalId(), request.isRefresh()));
+                .body(accountDataService.getAccountFullInfo(request.getEmail(), request.getAccountExternalId(), request.isRefresh()));
     }
 }

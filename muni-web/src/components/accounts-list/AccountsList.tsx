@@ -1,4 +1,4 @@
-import { Button, Card, CardActionArea, CardContent, CardMedia, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Button, Card, CardActionArea, CardContent, CardMedia, Chip, Grid, Paper, Stack, Typography } from "@mui/material";
 import { AccountDto } from "../../api/dtos";
 import styles from "./AccountsList.module.css"
 import { useNavigate } from "react-router-dom";
@@ -38,7 +38,10 @@ const AccountsList = ({ accounts }: Props) => {
                                         image={account.institutionLogo}
                                     />
                                     <Stack spacing={0.2}>
-                                        <h2>{account.name}</h2>
+                                        <Stack direction="row" spacing={1.5}>
+                                            <h2>{account.name}</h2>
+                                            <Chip sx={{ alignSelf: 'center' }} label={account.status} color={account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
+                                        </Stack>
                                         <p>{account.iban}</p>
                                         <p>{account.institutionName}</p>
                                     </Stack>

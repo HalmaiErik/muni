@@ -2,8 +2,6 @@ package com.muni.bankaccountdata.db.entity.enums;
 
 public enum TransactionColumn {
 
-    CREDITOR_NAME("CreditorName"),
-    CREDITOR_ACCOUNT("CreditorAccount"),
     AMOUNT("Amount"),
     REMITTANCE_INFO("RemittanceInfo");
 

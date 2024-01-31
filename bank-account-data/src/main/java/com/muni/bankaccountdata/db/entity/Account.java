@@ -37,6 +37,8 @@ public class Account {
 
     private String institutionLogo;
 
+    private Double balance;
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;

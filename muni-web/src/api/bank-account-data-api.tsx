@@ -1,6 +1,6 @@
 import { LOCAL_STORAGE_TOKEN_KEY } from "../constants/constants";
-import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto } from "./dtos";
-import { CreateCustomerRequest, CreateRequisitionRequest, GetAccountTransactionsRequest } from "./requests";
+import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto, AccountFullInfoDto } from "./dtos";
+import { CreateCustomerRequest, CreateRequisitionRequest, AccountFullInfoRequest } from "./requests";
 
 const baseUrl = 'http://localhost:8080/api/v1/bankaccount';
 
@@ -50,8 +50,8 @@ const getCustomerAccounts = async (email: string) => {
     return data;
 }
 
-const getAccountTransactions = async (request: GetAccountTransactionsRequest) => {
-    const response = await fetch(baseUrl + '/account/transactions', {
+const getAccountFullInfo = async (request: AccountFullInfoRequest) => {
+    const response = await fetch(baseUrl + '/account', {
         method: 'post',
         headers: new Headers({
             'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
@@ -59,7 +59,7 @@ const getAccountTransactions = async (request: GetAccountTransactionsRequest) =>
         }),
         body: JSON.stringify(request)
     });
-    const data: TransactionDto[] = await response.json();
+    const data: AccountFullInfoDto = await response.json();
     return data;
 }
 
@@ -68,5 +68,5 @@ export {
     createRequisition,
     createCustomer,
     getCustomerAccounts,
-    getAccountTransactions
+    getAccountFullInfo
 };

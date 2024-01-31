@@ -14,7 +14,7 @@ export type AccountDto = {
     name: string;
     iban: string;
     currency: string;
-    expirationDate: Date;
+    status: 'ACTIVE' | 'EXPIRED';
     institutionName: string;
     institutionLogo: string;
 }
@@ -25,4 +25,9 @@ export type TransactionDto = {
     amount: number;
     bookingDate: Date;
     remittanceInfo: string;
+}
+
+export type AccountFullInfoDto = {
+    account: AccountDto;
+    transactions: TransactionDto[];
 }

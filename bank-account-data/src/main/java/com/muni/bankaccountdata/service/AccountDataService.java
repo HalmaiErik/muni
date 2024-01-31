@@ -7,26 +7,24 @@ import com.muni.bankaccountdata.db.entity.Transaction;
 import com.muni.bankaccountdata.db.repository.AccountRepository;
 import com.muni.bankaccountdata.db.repository.CustomerRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
-import com.muni.bankaccountdata.dto.gocardless.AccountDetailsDto;
-import com.muni.bankaccountdata.dto.gocardless.AccountIdListDto;
-import com.muni.bankaccountdata.dto.gocardless.AccountTransactionDto;
-import com.muni.bankaccountdata.dto.gocardless.AccountTransactionListDto;
+import com.muni.bankaccountdata.dto.gocardless.*;
 import com.muni.bankaccountdata.dto.internal.AccountDto;
+import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
 import com.muni.bankaccountdata.dto.internal.TransactionDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenCreationDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
 import com.muni.bankaccountdata.dto.shared.RequisitionDto;
 import com.muni.bankaccountdata.exception.ApiException;
+import com.muni.bankaccountdata.mapper.AccountMapper;
+import com.muni.bankaccountdata.mapper.TransactionMapper;
 import com.muni.bankaccountdata.model.AccessToken;
-import com.muni.bankaccountdata.request.CreateCustomerRequest;
-import com.muni.bankaccountdata.request.CreateRequisitionRequest;
-import com.muni.bankaccountdata.request.GetAccountTransactionsRequest;
+import com.muni.bankaccountdata.validator.AccountValidator;
+import com.muni.bankaccountdata.validator.CustomerValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -42,23 +40,27 @@ public class AccountDataService {
     private static final String ACCESS_TOKEN_REFRESH_EXCEPTION_MSG = "Could not refresh access token %s";
     private static final String ACCOUNT_IDS_EXCEPTION_MSG = "Could not get account ids for requisition %s";
     private static final String ACCOUNT_DETAILS_EXCEPTION_MSG = "Could not get account details for account id %s";
-    private static final String ACCOUNT_BALANCES_EXCEPTION_MSG = "Could not get balances for account id %s";
+    private static final String ACCOUNT_BALANCE_EXCEPTION_MSG = "Could not get balance for account id %s";
     private static final String ACCOUNT_TRANSACTIONS_EXCEPTION_MSG = "Could not get transactions for account id %s";
     private static final int ACCESS_TOKEN_EXPIRATION_THRESHOLD = 10;
-    private static final int DEFAULT_REQUISITION_VALIDITY_DAYS = 90;
 
     private final GoCardlessApi goCardlessApi;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final CustomerValidator customerValidator;
+    private final AccountValidator accountValidator;
     private AccessToken accessToken;
 
     public AccountDataService(GoCardlessApi goCardlessApi, CustomerRepository customerRepository,
-                              AccountRepository accountRepository, TransactionRepository transactionRepository) {
+                              AccountRepository accountRepository, TransactionRepository transactionRepository,
+                              CustomerValidator customerValidator, AccountValidator accountValidator) {
         this.goCardlessApi = goCardlessApi;
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.customerValidator = customerValidator;
+        this.accountValidator = accountValidator;
     }
 
     @PostConstruct
@@ -102,17 +104,8 @@ public class AccountDataService {
         List<Account> accountsToSave = new LinkedList<>();
         for (String accountExternalId : accountExternalIds) {
             AccountDetailsDto accountDetailsDto = getAccountDetails(accountExternalId);
-            Account newAccount = Account.builder()
-                    .externalId(accountExternalId)
-                    .name(accountDetailsDto.getName())
-                    .iban(accountDetailsDto.getIban())
-                    .currency(accountDetailsDto.getCurrency())
-                    .requisitionId(requisitionId)
-                    .expirationDate(LocalDate.now().plusDays(DEFAULT_REQUISITION_VALIDITY_DAYS))
-                    .institutionName(institutionName)
-                    .institutionLogo(institutionLogo)
-                    .customer(newCustomer)
-                    .build();
+            Account newAccount = AccountMapper.apiDtoToEntity(accountDetailsDto, accountExternalId, requisitionId,
+                    institutionLogo, institutionName, newCustomer);
             accountsToSave.add(newAccount);
         }
 
@@ -121,21 +114,11 @@ public class AccountDataService {
 
     public List<AccountDto> getCustomerAccounts(String email) {
         try {
-            Customer customer = customerRepository.findCustomerByEmail(email)
-                    .orElseThrow(() -> new ApiException("No customer found with email " + email));
+            Customer customer = customerValidator.getRequiredCustomer(email);
 
             List<Account> accounts = accountRepository.findAllByCustomer_Id(customer.getId());
             return accounts.stream()
-                    .map(account ->
-                            AccountDto.builder()
-                                    .externalId(account.getExternalId())
-                                    .name(account.getName())
-                                    .iban(account.getIban())
-                                    .currency(account.getCurrency())
-                                    .expirationDate(account.getExpirationDate())
-                                    .institutionName(account.getInstitutionName())
-                                    .institutionLogo(account.getInstitutionLogo())
-                                    .build())
+                    .map(AccountMapper::entityToInternalDto)
                     .collect(Collectors.toList());
         }
         catch (ApiException e) {
@@ -143,33 +126,30 @@ public class AccountDataService {
         }
     }
 
-    public List<TransactionDto> getAccountTransactions(String email, String accountExternalId, boolean refresh) {
+    public AccountFullInfoDto getAccountFullInfo(String email, String accountExternalId, boolean refresh) {
         try {
-            Customer customer = customerRepository.findCustomerByEmail(email)
-                    .orElseThrow(() -> new ApiException(String.format("No customer found with email %s", email)));
-            Account account = accountRepository.findAccountByExternalIdAndCustomer_Id(accountExternalId, customer.getId())
-                    .orElseThrow(() -> new ApiException(String.format("No account found with externalId %s and customer email %s",
-                            accountExternalId, email)));
+            Customer customer = customerValidator.getRequiredCustomer(email);
+            Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
             if (refresh) {
-                List<AccountTransactionDto> accountTransactions = fetchAccountTransactions(accountExternalId);
-                saveNewAccountTransactions(customer, account, accountTransactions);
+                refreshAccountTransactions(customer, account);
+                refreshAccountBalance(account);
             }
 
-            List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
+            AccountDto accountDto = AccountMapper.entityToInternalDto(account);
 
-            return transactions.stream()
-                    .map(transaction ->
-                            TransactionDto.builder()
-                                    .refFromInstitution(transaction.getRefFromInstitution())
-                                    .amount(transaction.getAmount())
-                                    .bookingDate(transaction.getBookingDate())
-                                    .remittanceInfo(transaction.getRemittanceInfo())
-                                    .build())
-                    .collect(Collectors.toList());
+            List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
+            List<TransactionDto> transactionDtos = transactions.stream()
+                    .map(TransactionMapper::entityToInternalDto)
+                    .toList();
+
+            return AccountFullInfoDto.builder()
+                    .account(accountDto)
+                    .transactions(transactionDtos)
+                    .build();
         }
         catch (ApiException e) {
-            return new LinkedList<>();
+            return AccountFullInfoDto.builder().build();
         }
     }
 
@@ -197,6 +177,11 @@ public class AccountDataService {
         return response.getBody();
     }
 
+    private void refreshAccountTransactions(Customer customer, Account account) {
+        List<AccountTransactionDto> accountTransactions = fetchAccountTransactions(account.getExternalId());
+        saveNewAccountTransactions(customer, account, accountTransactions);
+    }
+
     private List<AccountTransactionDto> fetchAccountTransactions(String accountExternalId) {
         ResponseEntity<AccountTransactionListDto> response = goCardlessApi.getAccountTransactions(accessToken.getAccessToken(), accountExternalId);
         String exceptionMessage = ACCOUNT_TRANSACTIONS_EXCEPTION_MSG.formatted(accountExternalId);
@@ -207,30 +192,28 @@ public class AccountDataService {
 
     private void saveNewAccountTransactions(Customer customer, Account account, List<AccountTransactionDto> accountTransactions) {
         for (AccountTransactionDto accountTransaction : accountTransactions) {
-            if (accountRepository.existsAccountByExternalId(accountTransaction.getTransactionId())) {
+            if (transactionRepository.existsTransactionByExternalId(accountTransaction.getTransactionId())) {
                 continue;
             }
 
-            Transaction newTransaction = Transaction.builder()
-                    .externalId(accountTransaction.getTransactionId())
-                    .refFromInstitution(accountTransaction.getRefFromInstitution())
-                    .amount(accountTransaction.getAmount())
-                    .bookingDate(accountTransaction.getBookingDate())
-                    .remittanceInfo(accountTransaction.getRemittanceInfo())
-                    .customer(customer)
-                    .account(account)
-                    .build();
+            Transaction newTransaction = TransactionMapper.apiDtoToEntity(accountTransaction, customer, account);
             transactionRepository.save(newTransaction);
         }
     }
 
-//    private BalancesDto getAccountBalances(String accountId) {
-//        ResponseEntity<BalancesDto> response = goCardlessApi.getAccountBalances(accessToken.getAccessToken(), accountId);
-//        String exceptionMessage = ACCOUNT_BALANCES_EXCEPTION_MSG.formatted(accountId);
-//        validateResponse(response, exceptionMessage);
-//
-//        return response.getBody();
-//    }
+    private void refreshAccountBalance(Account account) {
+        AccountBalanceDto accountBalanceDto = getAccountBalance(account.getExternalId());
+        account.setBalance(accountBalanceDto.getAmount());
+        accountRepository.save(account);
+    }
+
+    private AccountBalanceDto getAccountBalance(String accountExternalId) {
+        ResponseEntity<AccountBalanceDto> response = goCardlessApi.getAccountBalance(accessToken.getAccessToken(), accountExternalId);
+        String exceptionMessage = ACCOUNT_BALANCE_EXCEPTION_MSG.formatted(accountExternalId);
+        validateResponse(response, exceptionMessage);
+
+        return response.getBody();
+    }
 
     private void refreshAccessTokenIfExpired() {
         LocalDateTime now = LocalDateTime.now().minusMinutes(ACCESS_TOKEN_EXPIRATION_THRESHOLD);
