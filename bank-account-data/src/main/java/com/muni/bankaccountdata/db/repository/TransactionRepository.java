@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
+    List<Transaction> findAllByAccount_Id(Long accountId);
     List<Transaction> findAllByAccount_IdOrderByBookingDateDesc(Long accountId);
     boolean existsTransactionByExternalId(String externalId);
 }

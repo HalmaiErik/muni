@@ -2,6 +2,7 @@ import { Button, Card, CardActionArea, CardContent, CardMedia, Chip, Grid, Paper
 import { AccountDto } from "../../api/dtos";
 import styles from "./AccountsList.module.css"
 import { useNavigate } from "react-router-dom";
+import { formatToUsd } from "../../utils/currencyFormatUtils";
 
 type Props = {
     accounts: AccountDto[];
@@ -24,29 +25,27 @@ const AccountsList = ({ accounts }: Props) => {
                                 display: 'flex',
                             }}
                         >
-                            <div style={{ flexGrow: 1 }}>
-                                <Grid container>
-                                    <CardMedia
-                                        sx={{
-                                            height: 60,
-                                            width: 60,
-                                            alignSelf: 'center',
-                                            flexDirection: 'column',
-                                            marginRight: '24px'
-                                        }}
-                                        component="img"
-                                        image={account.institutionLogo}
-                                    />
-                                    <Stack spacing={0.2}>
-                                        <Stack direction="row" spacing={1.5}>
-                                            <h2>{account.name}</h2>
-                                            <Chip sx={{ alignSelf: 'center' }} label={account.status} color={account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
-                                        </Stack>
-                                        <p>{account.iban}</p>
-                                        <p>{account.institutionName}</p>
-                                    </Stack>
-                                </Grid>
-                            </div>
+                            <CardMedia
+                                sx={{
+                                    height: 90,
+                                    width: 90,
+                                    alignSelf: 'center',
+                                    flexDirection: 'column',
+                                    marginRight: '24px'
+                                }}
+                                component="img"
+                                image={account.institutionLogo}
+                            />
+                            <Stack sx={{ flexGrow: 1 }} spacing={0.2}>
+                                <Stack direction="row" spacing={1.5}>
+                                    <Typography variant="h3">{account.name}</Typography>
+                                    <Chip sx={{ alignSelf: 'center' }} label={account.status} color={account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
+                                </Stack>
+                                <Typography variant="subtitle1">{account.iban}</Typography>
+                                <Typography variant="subtitle1">{account.institutionName}</Typography>
+                                <Typography variant="subtitle1">{`Currency: ${account.currency}`}</Typography>
+                                <Typography variant="h6">{`Balance: ${formatToUsd(account.balance)}`}</Typography>
+                            </Stack>
 
                             <Button
                                 sx={{
@@ -54,11 +53,11 @@ const AccountsList = ({ accounts }: Props) => {
                                     alignSelf: 'center'
                                 }}
                                 disabled={false}
-                                size="medium"
+                                size="large"
                                 variant="outlined"
                                 onClick={() => onSelectAccount(account.externalId)}
                             >
-                                View details
+                                View transactions
                             </Button>
                         </CardContent>
                     </Card>

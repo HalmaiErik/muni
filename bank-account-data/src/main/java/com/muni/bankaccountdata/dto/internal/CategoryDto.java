@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Data
 @Builder
-public class RuleDto {
+public class CategoryDto {
 
     private Long id;
 

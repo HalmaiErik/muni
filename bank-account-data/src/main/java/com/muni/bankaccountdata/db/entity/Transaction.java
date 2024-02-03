@@ -32,14 +32,14 @@ public class Transaction {
 
     private String remittanceInfo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToMany(mappedBy = "transactions")
+    @ManyToMany(mappedBy = "transactions", fetch = FetchType.EAGER)
     private Set<Category> categories;
 }

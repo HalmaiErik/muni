@@ -1,16 +1,19 @@
 package com.muni.bankaccountdata.mapper;
 
+import com.muni.bankaccountdata.db.entity.Category;
+import com.muni.bankaccountdata.db.entity.Customer;
 import com.muni.bankaccountdata.dto.internal.CategoryDto;
 
 import java.util.stream.Collectors;
 
-public class RuleMapper {
+public class CategoryMapper {
 
-    public static Rule dtoToEntity(CategoryDto categoryDto) {
-        return Rule.builder()
+    public static Category dtoToEntity(CategoryDto categoryDto, Customer customer) {
+        return Category.builder()
                 .id(categoryDto.getId())
                 .name(categoryDto.getName())
                 .colorCode(categoryDto.getColorCode())
+                .customer(customer)
                 .conditions(categoryDto.getConditions()
                         .stream()
                         .map(ConditionMapper::dtoToEntity)
@@ -18,12 +21,12 @@ public class RuleMapper {
                 .build();
     }
 
-    public static CategoryDto entityToDto(Rule rule) {
+    public static CategoryDto entityToDto(Category category) {
         return CategoryDto.builder()
-                .id(rule.getId())
-                .name(rule.getName())
-                .colorCode(rule.getColorCode())
-                .conditions(rule.getConditions()
+                .id(category.getId())
+                .name(category.getName())
+                .colorCode(category.getColorCode())
+                .conditions(category.getConditions()
                         .stream()
                         .map(ConditionMapper::entityToDto)
                         .collect(Collectors.toSet()))

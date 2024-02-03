@@ -23,12 +23,12 @@ public class Customer {
     @Column(unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Account> accounts;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
-    private List<Category> categories;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Transaction> transactions;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
-    private List<Rule> rules;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Category> categories;
 }

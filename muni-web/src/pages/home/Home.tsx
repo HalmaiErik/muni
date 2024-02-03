@@ -8,7 +8,7 @@ import { AccountDto } from "../../api/dtos";
 import { createCustomer, getCustomerAccounts } from "../../api/bank-account-data-api";
 import { useSearchParams } from "react-router-dom";
 import AccountsList from "../../components/accounts-list/AccountsList";
-import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME } from "../../constants/constants";
+import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME } from "../../utils/constants";
 
 const Home = () => {
     const [accounts, setAccounts] = useState<AccountDto[]>([]);
@@ -23,18 +23,18 @@ const Home = () => {
     useEffect(() => {
         const institutionName = window.localStorage.getItem(LOCAL_STORAGE_INSTITUTION_NAME);
         const institutionLogo = window.localStorage.getItem(LOCAL_STORAGE_INSTITUTION_LOGO);
-        if (requisitionId && currentUser && currentUser.email && institutionName && institutionLogo) {
+        if (requisitionId && currentUser && institutionName && institutionLogo) {
             window.localStorage.removeItem(LOCAL_STORAGE_INSTITUTION_NAME);
             window.localStorage.removeItem(LOCAL_STORAGE_INSTITUTION_LOGO);
 
-            createCustomer({ email: currentUser.email, requisitionId, institutionName, institutionLogo })
+            createCustomer({ requisitionId, institutionName, institutionLogo })
                 .then(() => getAccounts());
         }
     }, []);
 
     const getAccounts = () => {
-        if (currentUser && currentUser.email) {
-            getCustomerAccounts(currentUser.email)
+        if (currentUser) {
+            getCustomerAccounts()
                 .then((data) => {
                     setAccounts(data);
                 });

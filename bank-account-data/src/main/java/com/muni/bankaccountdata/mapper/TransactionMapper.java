@@ -5,7 +5,10 @@ import com.muni.bankaccountdata.db.entity.Customer;
 import com.muni.bankaccountdata.db.entity.Transaction;
 import com.muni.bankaccountdata.dto.gocardless.AccountTransactionDto;
 import com.muni.bankaccountdata.dto.internal.TransactionDto;
+import jakarta.persistence.Column;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TransactionMapper {
 
     public static Transaction apiDtoToEntity(AccountTransactionDto accountTransactionDto, Customer customer, Account account) {

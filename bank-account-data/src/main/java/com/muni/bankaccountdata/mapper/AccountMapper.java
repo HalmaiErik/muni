@@ -4,9 +4,11 @@ import com.muni.bankaccountdata.db.entity.Account;
 import com.muni.bankaccountdata.db.entity.Customer;
 import com.muni.bankaccountdata.dto.gocardless.AccountDetailsDto;
 import com.muni.bankaccountdata.dto.internal.AccountDto;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+@Component
 public class AccountMapper {
 
     private static final int DEFAULT_REQUISITION_VALIDITY_DAYS = 90;

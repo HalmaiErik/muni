@@ -2,7 +2,7 @@ import { Avatar, List, ListItemButton, ListItemAvatar, ListItemText, Typography 
 import { useEffect, useState } from "react";
 import { createRequisition, getCountryInstitutions } from "../../api/bank-account-data-api";
 import { InstitutionDto } from "../../api/dtos";
-import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, WEB_HOME_URL, WEB_SAVE_CUSTOMER_URL } from "../../constants/constants";
+import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, WEB_HOME_URL, WEB_SAVE_CUSTOMER_URL } from "../../utils/constants";
 
 const BankInstitutionSelection = () => {
     const [institutions, setInstitutions] = useState<InstitutionDto[]>([]);

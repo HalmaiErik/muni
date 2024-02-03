@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,7 +96,8 @@ public class AccountDataService {
         return response.getBody();
     }
 
-    public void createCustomer(String email, String requisitionId, String institutionName, String institutionLogo) {
+    public void createCustomer(String token, String requisitionId, String institutionName, String institutionLogo) {
+        String email = customerValidator.getEmailFromToken(token);
         Customer newCustomer = customerRepository.save(Customer.builder()
                 .email(email)
                 .build());
@@ -112,23 +114,23 @@ public class AccountDataService {
         accountRepository.saveAll(accountsToSave);
     }
 
-    public List<AccountDto> getCustomerAccounts(String email) {
+    public List<AccountDto> getCustomerAccounts(String token) {
         try {
-            Customer customer = customerValidator.getRequiredCustomer(email);
+            Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
 
             List<Account> accounts = accountRepository.findAllByCustomer_Id(customer.getId());
+
             return accounts.stream()
                     .map(AccountMapper::entityToInternalDto)
                     .collect(Collectors.toList());
-        }
-        catch (ApiException e) {
-            return new LinkedList<>();
+        } catch (ApiException e) {
+            return new ArrayList<>();
         }
     }
 
-    public AccountFullInfoDto getAccountFullInfo(String email, String accountExternalId, boolean refresh) {
+    public AccountFullInfoDto getAccountFullInfo(String token, String accountExternalId, boolean refresh) {
         try {
-            Customer customer = customerValidator.getRequiredCustomer(email);
+            Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
             Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
             if (refresh) {
@@ -147,8 +149,7 @@ public class AccountDataService {
                     .account(accountDto)
                     .transactions(transactionDtos)
                     .build();
-        }
-        catch (ApiException e) {
+        } catch (ApiException e) {
             return AccountFullInfoDto.builder().build();
         }
     }

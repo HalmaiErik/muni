@@ -2,12 +2,12 @@ package com.muni.bankaccountdata.controller;
 
 import com.muni.bankaccountdata.dto.internal.AccountDto;
 import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
+import com.muni.bankaccountdata.dto.internal.CategoryDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
 import com.muni.bankaccountdata.dto.shared.RequisitionDto;
-import com.muni.bankaccountdata.request.AccountFullInfoRequest;
-import com.muni.bankaccountdata.request.CreateCustomerRequest;
-import com.muni.bankaccountdata.request.CreateRequisitionRequest;
+import com.muni.bankaccountdata.request.*;
 import com.muni.bankaccountdata.service.AccountDataService;
+import com.muni.bankaccountdata.service.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,10 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class AccountDataController {
 
+    private static final int BEARER_PREFIX_LENGTH = 7;
+
     private final AccountDataService accountDataService;
+    private final CategoryService categoryService;
 
     @GetMapping("/institutions/{countryCode}")
     public ResponseEntity<List<InstitutionDto>> getCountryInstitutions(@PathVariable String countryCode) {
@@ -37,20 +40,41 @@ public class AccountDataController {
     }
 
     @PostMapping("/customer/create")
-    public void createCustomer(@RequestBody CreateCustomerRequest request) {
-        accountDataService.createCustomer(request.getEmail(), request.getRequisitionId(),
+    public void createCustomer(@RequestBody CreateCustomerRequest request, @RequestHeader("Authorization") String token) {
+        accountDataService.createCustomer(token, request.getRequisitionId(),
                 request.getInstitutionName(), request.getInstitutionLogo());
     }
 
-    @GetMapping("/accounts/{email}")
-    public ResponseEntity<List<AccountDto>> getCustomerAccounts(@PathVariable String email) {
+    @GetMapping("/accounts")
+    public ResponseEntity<List<AccountDto>> getCustomerAccounts(@RequestHeader("Authorization") String token) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(accountDataService.getCustomerAccounts(email));
+                .body(accountDataService.getCustomerAccounts(token.substring(BEARER_PREFIX_LENGTH)));
     }
 
     @PostMapping("/account")
-    public ResponseEntity<AccountFullInfoDto> accountFullInfo(@RequestBody AccountFullInfoRequest request) {
+    public ResponseEntity<AccountFullInfoDto> accountFullInfo(@RequestHeader("Authorization") String token,
+                                                              @RequestBody AccountFullInfoRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(accountDataService.getAccountFullInfo(request.getEmail(), request.getAccountExternalId(), request.isRefresh()));
+                .body(accountDataService.getAccountFullInfo(token.substring(BEARER_PREFIX_LENGTH),
+                        request.getAccountExternalId(), request.isRefresh()));
+    }
+
+    @PostMapping("/category/create")
+    public void createCategory(@RequestHeader("Authorization") String token,
+                               @RequestBody CategoryDto category) {
+        categoryService.createCategory(token.substring(BEARER_PREFIX_LENGTH), category);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryDto>> getCustomerCategories(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(categoryService.getCustomerCategories(token.substring(BEARER_PREFIX_LENGTH)));
+    }
+
+    @PostMapping("/categorize/account")
+    public void categorizeAccountTransactions(@RequestHeader("Authorization") String token,
+                                              @RequestBody CategorizeAccountTransactionsRequest request) {
+        categoryService.categorizeAccountTransactions(token.substring(BEARER_PREFIX_LENGTH),
+                request.getAccountExternalId(), request.getCategoryId());
     }
 }

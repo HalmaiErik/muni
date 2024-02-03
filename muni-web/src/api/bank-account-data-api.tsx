@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_TOKEN_KEY } from "../constants/constants";
+import { LOCAL_STORAGE_TOKEN_KEY } from "../utils/constants";
 import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto, AccountFullInfoDto } from "./dtos";
 import { CreateCustomerRequest, CreateRequisitionRequest, AccountFullInfoRequest } from "./requests";
 
@@ -39,8 +39,8 @@ const createCustomer = async (request: CreateCustomerRequest) => {
     });
 }
 
-const getCustomerAccounts = async (email: string) => {
-    const response = await fetch(baseUrl + '/accounts/' + email, {
+const getCustomerAccounts = async () => {
+    const response = await fetch(baseUrl + '/accounts', {
         method: 'get',
         headers: new Headers({
             'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,

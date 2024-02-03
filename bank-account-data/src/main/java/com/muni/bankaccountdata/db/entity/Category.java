@@ -24,13 +24,15 @@ public class Category {
 
     private String colorCode;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToMany
-    @JoinTable(
-            name = "transaction_category",
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    private Set<Condition> conditions;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "transaction_category",
             joinColumns = @JoinColumn(name = "category_id"),
             inverseJoinColumns = @JoinColumn(name = "transaction_id"))
     private Set<Transaction> transactions;

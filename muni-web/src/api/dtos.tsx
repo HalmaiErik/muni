@@ -17,6 +17,7 @@ export type AccountDto = {
     status: 'ACTIVE' | 'EXPIRED';
     institutionName: string;
     institutionLogo: string;
+    balance: number;
 }
 
 export type TransactionDto = {
