@@ -1,2 +1,2 @@
 # muni
-Personal finance website
+Personal finance app
