@@ -14,4 +14,6 @@ public class ConditionDto {
     private String operation;
 
     private String value;
+
+    private String separator;
 }

@@ -46,10 +46,12 @@ const TransactionsTable = ({ transactions }: Props) => {
                                 <TableCell align="justify">{transaction.bookingDate.toString()}</TableCell>
                                 <TableCell align="justify">{transaction.remittanceInfo || 'None'}</TableCell>
                                 <TableCell align="justify">
-                                    {transaction.categories.length !== 0 && transaction.categories.map((category, index) => (
-                                        <Card sx={{ height: '10px', width: '10px', backgroundColor: `${category.colorCode}` }} />
-                                    ))}
-                                    {transaction.categories.length === 0 && 'None'}
+                                    <div style={{ display: 'flex' }}>
+                                        {transaction.categories.length !== 0 && transaction.categories.map((category, index) => (
+                                            <Card key={index} sx={{ height: '10px', width: '10px', backgroundColor: `${category.colorCode}` }} />
+                                        ))}
+                                        {transaction.categories.length === 0 && 'None'}
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}

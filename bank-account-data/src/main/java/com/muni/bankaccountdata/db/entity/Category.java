@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ public class Category {
     private Customer customer;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private Set<Condition> conditions;
+    private List<Condition> conditions;
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     private Set<Transaction> transactions;

@@ -2,6 +2,7 @@ package com.muni.bankaccountdata.service;
 
 import com.muni.bankaccountdata.db.entity.*;
 import com.muni.bankaccountdata.db.entity.enums.Operation;
+import com.muni.bankaccountdata.db.entity.enums.Separator;
 import com.muni.bankaccountdata.db.repository.ConditionRepository;
 import com.muni.bankaccountdata.db.repository.CategoryRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
@@ -85,15 +86,30 @@ public class CategoryService {
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
         Category category = categoryValidator.getRequiredCustomerCategory(customer, categoryId);
 
-        List<Transaction> transactions = transactionRepository.findAllByAccount_Id(account.getId());
-        for (Condition condition : category.getConditions()) {
-            String columnGetterName = "get" + condition.getTransactionColumn().getName();
+        List<Transaction> accountTransactions = transactionRepository.findAllByAccount_Id(account.getId());
+        List<List<Transaction>> orSeparatedGroups = new ArrayList<>();
 
-            transactions.removeIf(transaction -> !transactionRespectsCondition(transaction, condition, columnGetterName));
+        List<Transaction> currentGroup = new ArrayList<>(accountTransactions);
+        orSeparatedGroups.add(currentGroup);
+
+        for (int i = 0; i < category.getConditions().size(); i++) {
+            Condition condition = category.getConditions().get(i);
+            if (Separator.OR.equals(condition.getSeparator()) && i != 0) {
+                currentGroup = new ArrayList<>(accountTransactions);
+                orSeparatedGroups.add(currentGroup);
+            }
+
+            String columnGetterName = "get" + condition.getTransactionColumn().getName();
+            currentGroup.removeIf(transaction -> !transactionRespectsCondition(transaction, condition, columnGetterName));
         }
 
-        transactions.forEach(transaction -> addCategoryToTransaction(transaction, category));
-        transactionRepository.saveAll(transactions);
+        List<Transaction> categoryTransactions = orSeparatedGroups.stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .toList();
+
+        categoryTransactions.forEach(transaction -> addCategoryToTransaction(transaction, category));
+        transactionRepository.saveAll(categoryTransactions);
     }
 
     private boolean transactionRespectsCondition(Transaction transaction, Condition condition, String columnGetterName) {

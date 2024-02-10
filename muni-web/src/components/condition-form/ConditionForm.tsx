@@ -6,13 +6,15 @@ import DoneIcon from '@mui/icons-material/Done';
 
 type Props = {
     condition?: ConditionDto;
+    index?: number;
     addCondition: (arg0: ConditionDto) => void;
 };
 
-const ConditionForm = ({ condition, addCondition }: Props) => {
+const ConditionForm = ({ condition, index, addCondition }: Props) => {
     const [column, setColumn] = useState(condition?.transactionColumn || '');
     const [operation, setOperation] = useState(condition?.operation || '');
     const [value, setValue] = useState(condition?.value || '');
+    const [separator, setSeparator] = useState(condition?.separator || '');
 
     const save = (event: React.FormEvent) => {
         event.preventDefault();
@@ -21,7 +23,8 @@ const ConditionForm = ({ condition, addCondition }: Props) => {
             id: condition?.id,
             transactionColumn: column,
             operation,
-            value
+            value,
+            separator: separator !== '' ? separator : undefined
         });
     }
 
@@ -35,6 +38,16 @@ const ConditionForm = ({ condition, addCondition }: Props) => {
 
     return (
         <form style={{ display: 'flex' }} onSubmit={save}>
+            {index !== undefined && index !== 0 &&
+                <FormControl sx={{ minWidth: 110, marginRight: '8px' }}>
+                    <InputLabel id="separator-label">Separator</InputLabel>
+                    <Select autoWidth labelId="separator-label" label="Column" value={separator} onChange={(e) => setSeparator(e.target.value)} required>
+                        <MenuItem value={'AND'}>{'And'}</MenuItem>
+                        <MenuItem value={'OR'}>{'Or'}</MenuItem>
+                    </Select>
+                </FormControl>
+            }
+
             <FormControl sx={{ minWidth: 140, marginRight: '8px' }}>
                 <InputLabel id="column-label">Column</InputLabel>
                 <Select autoWidth labelId="column-label" label="Column" value={column} onChange={(e) => setColumn(e.target.value)} required>

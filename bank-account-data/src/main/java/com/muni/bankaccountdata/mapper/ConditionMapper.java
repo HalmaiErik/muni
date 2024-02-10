@@ -4,6 +4,7 @@ import com.muni.bankaccountdata.db.converter.ColumnConverter;
 import com.muni.bankaccountdata.db.converter.OperationConverter;
 import com.muni.bankaccountdata.db.entity.Condition;
 import com.muni.bankaccountdata.db.entity.enums.Operation;
+import com.muni.bankaccountdata.db.entity.enums.Separator;
 import com.muni.bankaccountdata.db.entity.enums.TransactionColumn;
 import com.muni.bankaccountdata.dto.internal.ConditionDto;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class ConditionMapper {
                 .transactionColumn(TransactionColumn.valueOf(conditionDto.getTransactionColumn()))
                 .operation(Operation.valueOf(conditionDto.getOperation()))
                 .value(conditionDto.getValue())
+                .separator(conditionDto.getSeparator() != null ? Separator.valueOf(conditionDto.getSeparator()) : null)
                 .build();
     }
 
@@ -28,6 +30,7 @@ public class ConditionMapper {
                 .transactionColumn(condition.getTransactionColumn().toString())
                 .operation(condition.getOperation().toString())
                 .value(condition.getValue())
+                .separator(condition.getSeparator() != null ? condition.getSeparator().toString() : null)
                 .build();
     }
 }

@@ -17,7 +17,7 @@ public class CategoryMapper {
                 .conditions(categoryDto.getConditions()
                         .stream()
                         .map(ConditionMapper::dtoToEntity)
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
                 .build();
     }
 

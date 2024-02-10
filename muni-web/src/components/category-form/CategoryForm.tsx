@@ -60,7 +60,7 @@ const CategoryForm = ({ category, discard }: Props) => {
                         {conditions.map((condition, index) => (
                             <Card key={index} sx={{ marginBottom: 2 }}>
                                 <CardContent>
-                                    <ConditionForm condition={condition} addCondition={addCondition} />
+                                    <ConditionForm condition={condition} index={index} addCondition={addCondition} />
                                 </CardContent>
                             </Card>
                         ))}
@@ -76,7 +76,7 @@ const CategoryForm = ({ category, discard }: Props) => {
                         {conditions.length !== 0 && wantToAdd &&
                             <Card>
                                 <CardContent>
-                                    <ConditionForm addCondition={addCondition} />
+                                    <ConditionForm index={conditions.length} addCondition={addCondition} />
                                 </CardContent>
                             </Card>
                         }

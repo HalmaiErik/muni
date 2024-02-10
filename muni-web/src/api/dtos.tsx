@@ -36,6 +36,7 @@ export type TransactionDto = {
 
 export type ConditionDto = {
     id?: number;
+    separator?: string;
     transactionColumn: string;
     operation: string;
     value: string;

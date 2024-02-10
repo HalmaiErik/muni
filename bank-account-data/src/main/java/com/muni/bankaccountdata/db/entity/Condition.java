@@ -1,6 +1,7 @@
 package com.muni.bankaccountdata.db.entity;
 
 import com.muni.bankaccountdata.db.entity.enums.Operation;
+import com.muni.bankaccountdata.db.entity.enums.Separator;
 import com.muni.bankaccountdata.db.entity.enums.TransactionColumn;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,8 @@ public class Condition {
 
     private String value;
 
+    private Separator separator;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -43,11 +46,12 @@ public class Condition {
         }
 
         return Objects.equals(id, c.id) && Objects.equals(transactionColumn, c.transactionColumn)
-                && Objects.equals(operation, c.operation) && Objects.equals(value, c.value) && Objects.equals(category, c.category);
+                && Objects.equals(operation, c.operation) && Objects.equals(value, c.value) && Objects.equals(category, c.category)
+                && Objects.equals(separator, c.separator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, transactionColumn, operation, value);
+        return Objects.hash(id, transactionColumn, operation, value, separator);
     }
 }
