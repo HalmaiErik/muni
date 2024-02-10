@@ -6,10 +6,18 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/navbar/Navbar';
 import styles from './App.module.css'
 import Account from './pages/account/Account';
+import { darkScrollbar } from '@mui/material';
 
 const darkTheme = createTheme({
   palette: {
     mode: 'dark'
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: (theme) => ({
+        '*': theme.palette.mode === 'dark' ? darkScrollbar() : null
+      })
+    }
   }
 });
 

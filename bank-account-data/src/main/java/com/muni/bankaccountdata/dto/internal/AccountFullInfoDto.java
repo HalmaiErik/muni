@@ -10,5 +10,6 @@ import java.util.List;
 public class AccountFullInfoDto {
 
     private AccountDto account;
+    private List<CategoryDto> categories;
     private List<TransactionDto> transactions;
 }

@@ -11,13 +11,13 @@ import com.muni.bankaccountdata.mapper.CategoryMapper;
 import com.muni.bankaccountdata.validator.AccountValidator;
 import com.muni.bankaccountdata.validator.CategoryValidator;
 import com.muni.bankaccountdata.validator.CustomerValidator;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,11 +44,12 @@ public class CategoryService {
     public void createCategory(String token, CategoryDto categoryDto) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
 
-        Category category = categoryRepository.save(CategoryMapper.dtoToEntity(categoryDto, customer));
+        Category toSave = CategoryMapper.dtoToEntity(categoryDto, customer);
+        Category saved = categoryRepository.save(toSave);
 
-        List<Condition> conditions = category.getConditions()
+        List<Condition> conditions = toSave.getConditions()
                 .stream()
-                .peek(condition -> condition.setCategory(category))
+                .peek(condition -> condition.setCategory(saved))
                 .toList();
         conditionRepository.saveAll(conditions);
     }
@@ -67,6 +68,18 @@ public class CategoryService {
         }
     }
 
+    public List<CategoryDto> getCustomerCategories(Customer customer) {
+        try {
+            List<Category> categories = categoryRepository.getAllByCustomer_Id(customer.getId());
+
+            return categories.stream()
+                    .map(CategoryMapper::entityToDto)
+                    .collect(Collectors.toList());
+        } catch (ApiException e) {
+            return new ArrayList<>();
+        }
+    }
+
     public void categorizeAccountTransactions(String token, String accountExternalId, Long categoryId) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
@@ -74,29 +87,42 @@ public class CategoryService {
 
         List<Transaction> transactions = transactionRepository.findAllByAccount_Id(account.getId());
         for (Condition condition : category.getConditions()) {
-            String columnName = StringUtils.capitalize(condition.getTransactionColumn().getName().toLowerCase());
+            String columnGetterName = "get" + condition.getTransactionColumn().getName();
 
-            transactions.removeIf(transaction -> transactionRespectsCondition(transaction, condition, columnName));
+            transactions.removeIf(transaction -> !transactionRespectsCondition(transaction, condition, columnGetterName));
         }
 
-        transactions.forEach(transaction -> transaction.getCategories().add(category));
+        transactions.forEach(transaction -> addCategoryToTransaction(transaction, category));
         transactionRepository.saveAll(transactions);
     }
 
-    private boolean transactionRespectsCondition(Transaction transaction, Condition condition, String columnName) {
+    private boolean transactionRespectsCondition(Transaction transaction, Condition condition, String columnGetterName) {
         try {
-            Method columnGetter = transaction.getClass().getMethod("get" + columnName);
-            String columnValue = columnGetter.invoke(transaction).toString();
+            Method columnGetter = transaction.getClass().getMethod(columnGetterName);
+            Object column = columnGetter.invoke(transaction);
 
-            if (Operation.EQUALS.equals(condition.getOperation())) {
-                return condition.getValue().equals(columnValue);
-            } else if (Operation.CONTAINS.equals(condition.getOperation())) {
-                return columnValue.contains(condition.getValue());
+            if (column != null) {
+                String columnValue = column.toString();
+
+                if (Operation.EQUALS.equals(condition.getOperation())) {
+                    return condition.getValue().equals(columnValue);
+                }
+                else if (Operation.CONTAINS.equals(condition.getOperation())) {
+                    return columnValue.contains(condition.getValue());
+                }
             }
 
             return false;
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw new ApiException(e.getMessage());
         }
+    }
+
+    private void addCategoryToTransaction(Transaction transaction, Category category) {
+        Set<Category> categories = Optional.ofNullable(transaction.getCategories())
+                .orElseGet(HashSet::new);
+
+        categories.add(category);
+        transaction.setCategories(categories);
     }
 }

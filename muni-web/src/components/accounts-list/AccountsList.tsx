@@ -36,6 +36,7 @@ const AccountsList = ({ accounts }: Props) => {
                                 component="img"
                                 image={account.institutionLogo}
                             />
+
                             <Stack sx={{ flexGrow: 1 }} spacing={0.2}>
                                 <Stack direction="row" spacing={1.5}>
                                     <Typography variant="h3">{account.name}</Typography>
@@ -52,7 +53,6 @@ const AccountsList = ({ accounts }: Props) => {
                                     maxHeight: '48px',
                                     alignSelf: 'center'
                                 }}
-                                disabled={false}
                                 size="large"
                                 variant="outlined"
                                 onClick={() => onSelectAccount(account.externalId)}

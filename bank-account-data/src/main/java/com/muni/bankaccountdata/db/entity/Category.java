@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -28,12 +29,29 @@ public class Category {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private Set<Condition> conditions;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "transaction_category",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "transaction_id"))
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     private Set<Transaction> transactions;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof Category c)) {
+            return false;
+        }
+
+        return Objects.equals(id, c.id) && Objects.equals(name, c.name) && Objects.equals(colorCode, c.colorCode)
+                && Objects.equals(conditions, c.conditions) && Objects.equals(customer, c.customer)
+                && Objects.equals(transactions, c.transactions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, colorCode);
+    }
 }

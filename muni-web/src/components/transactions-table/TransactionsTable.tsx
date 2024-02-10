@@ -1,4 +1,4 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from "@mui/material";
+import { Card, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from "@mui/material";
 import { TransactionDto } from "../../api/dtos"
 import React from "react";
 
@@ -20,7 +20,7 @@ const TransactionsTable = ({ transactions }: Props) => {
     };
 
     return (
-        <TableContainer sx={{ height: 'inherit', width: 'inherit' }}>
+        <TableContainer sx={{ maxWidth: 1256, maxHeight: 512, overflow: 'auto', scrollbarWidth: 'thin' }}>
             <Table stickyHeader>
                 <TableHead>
                     <TableRow>
@@ -28,14 +28,15 @@ const TransactionsTable = ({ transactions }: Props) => {
                         <TableCell align="justify">Amount&nbsp;($)</TableCell>
                         <TableCell align="justify">Booking date</TableCell>
                         <TableCell align="justify">Information</TableCell>
+                        <TableCell align="justify">Categories</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {transactions
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((transaction) => (
+                        .map((transaction, index) => (
                             <TableRow
-                                key={transaction.externalId}
+                                key={index}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell component="th" scope="row">
@@ -44,6 +45,12 @@ const TransactionsTable = ({ transactions }: Props) => {
                                 <TableCell align="justify">{transaction.amount}</TableCell>
                                 <TableCell align="justify">{transaction.bookingDate.toString()}</TableCell>
                                 <TableCell align="justify">{transaction.remittanceInfo || 'None'}</TableCell>
+                                <TableCell align="justify">
+                                    {transaction.categories.length !== 0 && transaction.categories.map((category, index) => (
+                                        <Card sx={{ height: '10px', width: '10px', backgroundColor: `${category.colorCode}` }} />
+                                    ))}
+                                    {transaction.categories.length === 0 && 'None'}
+                                </TableCell>
                             </TableRow>
                         ))}
                 </TableBody>

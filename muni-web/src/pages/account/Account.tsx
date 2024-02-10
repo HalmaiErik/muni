@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
 import { AccountFullInfoDto, TransactionDto } from "../../api/dtos";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAccountFullInfo } from "../../api/bank-account-data-api";
 import TransactionsTable from "../../components/transactions-table/TransactionsTable";
-import { Card, CardContent, CardMedia, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Card, CardContent, CardMedia, Chip, Divider, Modal, Paper, Stack, Typography } from "@mui/material";
 import { formatToUsd } from "../../utils/currencyFormatUtils";
+import { useEffect, useState } from "react";
+import CategoryList from "../../components/category-list/CategoryList";
+import CategoryForm from "../../components/category-form/CategoryForm";
 
 const Account = () => {
     const [accountInfo, setAccountInfo] = useState<AccountFullInfoDto>();
@@ -24,10 +26,10 @@ const Account = () => {
     }, []);
 
     return (
-        <>
+        <div style={{ maxWidth: 1256, margin: 'auto' }}>
             {accountInfo && (
                 <>
-                    <Card sx={{ maxWidth: 1256, margin: 'auto', marginBottom: '32px' }} variant="elevation">
+                    <Card sx={{ marginBottom: '32px' }} variant="elevation">
                         <CardContent>
                             <div style={{ display: "flex" }}>
                                 <CardMedia
@@ -55,12 +57,14 @@ const Account = () => {
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ maxWidth: 1256, maxHeight: 512, margin: 'auto', overflow: 'auto' }} variant="outlined">
+                    <CategoryList accountExternalId={accountExternalId} categories={accountInfo.categories} />
+
+                    <Card sx={{ maxWidth: 1256, maxHeight: 512, margin: 'auto' }} variant="outlined">
                         <TransactionsTable transactions={accountInfo.transactions} />
                     </Card>
                 </>
             )}
-        </>
+        </div>
     );
 };
 

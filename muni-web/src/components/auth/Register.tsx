@@ -30,33 +30,33 @@ const Register = () => {
         }
 
         setLoading(false);
-    }
+    };
 
     return (
         <Stack spacing={"16px"}>
             <Typography variant="h4" textAlign={"center"}>
-                    Create account
+                Create account
             </Typography>
 
             {error && <Alert severity="error">{error}</Alert>}
 
             <form onSubmit={handleSubmit}>
                 <Stack spacing={"16px"}>
-                    <TextField 
-                        name="email" 
-                        label="Email" 
+                    <TextField
+                        name="email"
+                        label="Email"
                         type="email"
                         inputRef={emailRef}
                         required />
-                    <TextField 
-                        name="password" 
-                        label="Password" 
-                        type="password" 
+                    <TextField
+                        name="password"
+                        label="Password"
+                        type="password"
                         inputRef={passwordRef}
                         required />
-                    <TextField 
-                        label="Re-enter password" 
-                        type="password" 
+                    <TextField
+                        label="Re-enter password"
+                        type="password"
                         inputRef={reenterPasswordRef}
                         required />
                     <Button type="submit" variant="outlined" disabled={loading}>Sign up</Button>

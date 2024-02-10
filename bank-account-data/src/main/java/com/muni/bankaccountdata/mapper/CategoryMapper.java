@@ -29,7 +29,7 @@ public class CategoryMapper {
                 .conditions(category.getConditions()
                         .stream()
                         .map(ConditionMapper::entityToDto)
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

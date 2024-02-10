@@ -1,6 +1,6 @@
 import { LOCAL_STORAGE_TOKEN_KEY } from "../utils/constants";
-import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto, AccountFullInfoDto } from "./dtos";
-import { CreateCustomerRequest, CreateRequisitionRequest, AccountFullInfoRequest } from "./requests";
+import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto, AccountFullInfoDto, CategoryDto } from "./dtos";
+import { CreateCustomerRequest, CreateRequisitionRequest, AccountFullInfoRequest, CategorizeAccountTransactionsRequest } from "./requests";
 
 const baseUrl = 'http://localhost:8080/api/v1/bankaccount';
 
@@ -13,7 +13,7 @@ const getCountryInstitutions = async (countryCode: string) => {
     });
     const data: InstitutionDto[] = await response.json();
     return data;
-}
+};
 
 const createRequisition = async (request: CreateRequisitionRequest) => {
     const response = await fetch(baseUrl + '/requisitions', {
@@ -26,7 +26,7 @@ const createRequisition = async (request: CreateRequisitionRequest) => {
     });
     const data: RequisitionDto = await response.json();
     return data;
-}
+};
 
 const createCustomer = async (request: CreateCustomerRequest) => {
     await fetch(baseUrl + '/customer/create', {
@@ -37,7 +37,7 @@ const createCustomer = async (request: CreateCustomerRequest) => {
         }),
         body: JSON.stringify(request)
     });
-}
+};
 
 const getCustomerAccounts = async () => {
     const response = await fetch(baseUrl + '/accounts', {
@@ -48,7 +48,7 @@ const getCustomerAccounts = async () => {
     });
     const data: AccountDto[] = await response.json();
     return data;
-}
+};
 
 const getAccountFullInfo = async (request: AccountFullInfoRequest) => {
     const response = await fetch(baseUrl + '/account', {
@@ -61,12 +61,36 @@ const getAccountFullInfo = async (request: AccountFullInfoRequest) => {
     });
     const data: AccountFullInfoDto = await response.json();
     return data;
-}
+};
+
+const createCategory = async (category: CategoryDto) => {
+    await fetch(baseUrl + '/category/create', {
+        method: 'post',
+        headers: new Headers({
+            'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+            'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(category)
+    });
+};
+
+const categorizeAccountTransactions = async (request: CategorizeAccountTransactionsRequest) => {
+    await fetch(baseUrl + '/categorize/account', {
+        method: 'post',
+        headers: new Headers({
+            'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+            'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(request)
+    });
+};
 
 export {
     getCountryInstitutions,
     createRequisition,
     createCustomer,
     getCustomerAccounts,
-    getAccountFullInfo
+    getAccountFullInfo,
+    createCategory,
+    categorizeAccountTransactions
 };

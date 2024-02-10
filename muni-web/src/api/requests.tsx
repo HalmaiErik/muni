@@ -12,4 +12,9 @@ export type CreateCustomerRequest = {
 export type AccountFullInfoRequest = {
     accountExternalId: string;
     refresh: boolean;
-}
+};
+
+export type CategorizeAccountTransactionsRequest = {
+    accountExternalId: string;
+    categoryId: number;
+};

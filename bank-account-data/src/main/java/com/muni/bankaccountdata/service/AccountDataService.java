@@ -10,6 +10,7 @@ import com.muni.bankaccountdata.db.repository.TransactionRepository;
 import com.muni.bankaccountdata.dto.gocardless.*;
 import com.muni.bankaccountdata.dto.internal.AccountDto;
 import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
+import com.muni.bankaccountdata.dto.internal.CategoryDto;
 import com.muni.bankaccountdata.dto.internal.TransactionDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenCreationDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
@@ -46,6 +47,7 @@ public class AccountDataService {
     private static final int ACCESS_TOKEN_EXPIRATION_THRESHOLD = 10;
 
     private final GoCardlessApi goCardlessApi;
+    private final CategoryService categoryService;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -53,10 +55,12 @@ public class AccountDataService {
     private final AccountValidator accountValidator;
     private AccessToken accessToken;
 
-    public AccountDataService(GoCardlessApi goCardlessApi, CustomerRepository customerRepository,
-                              AccountRepository accountRepository, TransactionRepository transactionRepository,
-                              CustomerValidator customerValidator, AccountValidator accountValidator) {
+    public AccountDataService(GoCardlessApi goCardlessApi, CategoryService categoryService,
+                              CustomerRepository customerRepository, AccountRepository accountRepository,
+                              TransactionRepository transactionRepository, CustomerValidator customerValidator,
+                              AccountValidator accountValidator) {
         this.goCardlessApi = goCardlessApi;
+        this.categoryService = categoryService;
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
@@ -140,6 +144,8 @@ public class AccountDataService {
 
             AccountDto accountDto = AccountMapper.entityToInternalDto(account);
 
+            List<CategoryDto> categories = categoryService.getCustomerCategories(customer);
+
             List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
             List<TransactionDto> transactionDtos = transactions.stream()
                     .map(TransactionMapper::entityToInternalDto)
@@ -147,6 +153,7 @@ public class AccountDataService {
 
             return AccountFullInfoDto.builder()
                     .account(accountDto)
+                    .categories(categories)
                     .transactions(transactionDtos)
                     .build();
         } catch (ApiException e) {

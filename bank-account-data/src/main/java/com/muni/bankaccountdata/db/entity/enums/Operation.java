@@ -2,8 +2,8 @@ package com.muni.bankaccountdata.db.entity.enums;
 
 public enum Operation {
 
-    EQUALS("equals"),
-    CONTAINS("contains");
+    EQUALS("Equals"),
+    CONTAINS("Contains");
 
     private String name;
 

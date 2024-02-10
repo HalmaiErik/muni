@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "condition")
 @Data
@@ -29,4 +31,23 @@ public class Condition {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof Condition c)) {
+            return false;
+        }
+
+        return Objects.equals(id, c.id) && Objects.equals(transactionColumn, c.transactionColumn)
+                && Objects.equals(operation, c.operation) && Objects.equals(value, c.value) && Objects.equals(category, c.category);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, transactionColumn, operation, value);
+    }
 }
