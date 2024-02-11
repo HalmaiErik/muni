@@ -93,6 +93,18 @@ public class CategoryService {
         Category category = categoryValidator.getRequiredCustomerCategory(customer, categoryId);
 
         List<Transaction> accountTransactions = transactionRepository.findAllByAccount_Id(account.getId());
+        List<List<Transaction>> orSeparatedGroups = getOrSeparatedGroups(accountTransactions, category);
+
+        List<Transaction> categoryTransactions = orSeparatedGroups.stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .toList();
+
+        categoryTransactions.forEach(transaction -> addCategoryToTransaction(transaction, category));
+        transactionRepository.saveAll(categoryTransactions);
+    }
+
+    private List<List<Transaction>> getOrSeparatedGroups(List<Transaction> accountTransactions, Category category) {
         List<List<Transaction>> orSeparatedGroups = new ArrayList<>();
 
         List<Transaction> currentGroup = new ArrayList<>(accountTransactions);
@@ -109,13 +121,7 @@ public class CategoryService {
             currentGroup.removeIf(transaction -> !transactionRespectsCondition(transaction, condition, columnGetterName));
         }
 
-        List<Transaction> categoryTransactions = orSeparatedGroups.stream()
-                .flatMap(Collection::stream)
-                .distinct()
-                .toList();
-
-        categoryTransactions.forEach(transaction -> addCategoryToTransaction(transaction, category));
-        transactionRepository.saveAll(categoryTransactions);
+        return orSeparatedGroups;
     }
 
     private boolean transactionRespectsCondition(Transaction transaction, Condition condition, String columnGetterName) {

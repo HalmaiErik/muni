@@ -4,7 +4,7 @@ import CategoryForm from "../category-form/CategoryForm";
 import { useState } from "react";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { categorizeAccountTransactions } from "../../api/bank-account-data-api";
+import { useCategorizeAccountTransactions } from "../../api/bank-account-data-api";
 
 type Props = {
     categories: CategoryDto[];
@@ -15,6 +15,7 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<CategoryDto>();
+    const { mutate: categorizeAccountTransactions } = useCategorizeAccountTransactions();
 
     const openCreateModal = () => setCreateModalOpen(true);
     const closeCreateModal = () => setCreateModalOpen(false);

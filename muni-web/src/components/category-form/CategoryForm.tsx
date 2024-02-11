@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MuiColorInput } from "mui-color-input";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ConditionForm from "../condition-form/ConditionForm";
-import { createCategory } from "../../api/bank-account-data-api";
+import { useCreateCategory } from "../../api/bank-account-data-api";
 
 type Props = {
     category?: CategoryDto;
@@ -17,6 +17,7 @@ const CategoryForm = ({ category, discard }: Props) => {
     const [conditions, setConditions] = useState(category?.conditions || []);
     const [colorCode, setColorCode] = useState(category?.colorCode || 'rgb(255, 255, 255)');
     const nameRef = useRef<HTMLInputElement>();
+    const { mutate: createCategory } = useCreateCategory();
 
     const changeColor = (color: string) => {
         setColorCode(color);
@@ -48,10 +49,10 @@ const CategoryForm = ({ category, discard }: Props) => {
                 name: nameRef.current.value,
                 colorCode: colorCode,
                 conditions: conditions
-            }).then(() => {
-                setLoading(false);
-                discard();
             });
+
+            setLoading(false);
+            discard();
         }
     };
 

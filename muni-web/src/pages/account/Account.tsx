@@ -1,29 +1,19 @@
 import { AccountFullInfoDto, TransactionDto } from "../../api/dtos";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { getAccountFullInfo } from "../../api/bank-account-data-api";
+import { useAccountFullInfo } from "../../api/bank-account-data-api";
 import TransactionsTable from "../../components/transactions-table/TransactionsTable";
 import { Card, CardContent, CardMedia, Chip, Divider, Modal, Paper, Stack, Typography } from "@mui/material";
 import { formatToUsd } from "../../utils/currencyFormatUtils";
 import { useEffect, useState } from "react";
 import CategoryList from "../../components/category-list/CategoryList";
 import CategoryForm from "../../components/category-form/CategoryForm";
+import { useQuery } from "react-query";
 
 const Account = () => {
-    const [accountInfo, setAccountInfo] = useState<AccountFullInfoDto>();
     const { accountExternalId } = useParams();
     const { currentUser } = useAuth();
-
-    useEffect(() => {
-        if (accountExternalId && currentUser) {
-            getAccountFullInfo({ accountExternalId, refresh: false })
-                .then((data) => {
-                    console.log(data);
-                    setAccountInfo(data);
-                })
-                .catch();
-        }
-    }, []);
+    const { data: accountInfo } = useAccountFullInfo(false, currentUser, accountExternalId);
 
     return (
         <div style={{ maxWidth: 1256, margin: 'auto' }}>
