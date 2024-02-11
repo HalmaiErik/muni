@@ -1,6 +1,6 @@
 import { Accordion, AccordionDetails, AccordionSummary, Button, Card, CardContent, Divider, Stack, TextField, Typography } from "@mui/material";
 import { CategoryDto, ConditionDto } from "../../api/dtos"
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MuiColorInput } from "mui-color-input";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ConditionForm from "../condition-form/ConditionForm";
@@ -25,7 +25,17 @@ const CategoryForm = ({ category, discard }: Props) => {
     const addCondition = (condition: ConditionDto) => {
         setConditions([...conditions, condition]);
         setWantToAdd(false);
-    }
+    };
+
+    const removeCondition = (index: number) => {
+        if (index < conditions.length) {
+            let newConditions = [...conditions.slice(0, index), ...conditions.slice(index + 1)];
+            setConditions(newConditions);
+        }
+        else {
+            setWantToAdd(false);
+        }
+    };
 
     const saveCategory = (event: React.FormEvent) => {
         event.preventDefault();
@@ -43,11 +53,11 @@ const CategoryForm = ({ category, discard }: Props) => {
                 discard();
             });
         }
-    }
+    };
 
     return (
-        <Stack sx={{ height: '100%' }}>
-            <Stack sx={{ maxHeight: '92%', height: '100%' }} direction="row" spacing={5} divider={<Divider variant="middle" orientation="vertical" flexItem />}>
+        <Stack sx={{ height: '95%' }}>
+            <Stack sx={{ height: '92%' }} direction="row" spacing={5} divider={<Divider variant="middle" orientation="vertical" flexItem />}>
                 <Stack sx={{ width: '40%' }} spacing={3}>
                     <Typography sx={{ alignSelf: 'center' }} variant="h5">Category details</Typography>
                     <TextField label="Name" required fullWidth defaultValue={category?.name} inputRef={nameRef} />
@@ -58,9 +68,9 @@ const CategoryForm = ({ category, discard }: Props) => {
 
                     <div style={{ overflow: 'auto' }}>
                         {conditions.map((condition, index) => (
-                            <Card key={index} sx={{ marginBottom: 2 }}>
+                            <Card key={condition.id || index} sx={{ marginBottom: 2 }}>
                                 <CardContent>
-                                    <ConditionForm condition={condition} index={index} addCondition={addCondition} />
+                                    <ConditionForm condition={condition} index={index} addCondition={addCondition} removeCondition={removeCondition} />
                                 </CardContent>
                             </Card>
                         ))}
@@ -68,7 +78,7 @@ const CategoryForm = ({ category, discard }: Props) => {
                         {conditions.length === 0 &&
                             <Card>
                                 <CardContent>
-                                    <ConditionForm addCondition={addCondition} />
+                                    <ConditionForm addCondition={addCondition} removeCondition={removeCondition} />
                                 </CardContent>
                             </Card>
                         }
@@ -76,7 +86,7 @@ const CategoryForm = ({ category, discard }: Props) => {
                         {conditions.length !== 0 && wantToAdd &&
                             <Card>
                                 <CardContent>
-                                    <ConditionForm index={conditions.length} addCondition={addCondition} />
+                                    <ConditionForm index={conditions.length} addCondition={addCondition} removeCondition={removeCondition} />
                                 </CardContent>
                             </Card>
                         }
@@ -84,7 +94,7 @@ const CategoryForm = ({ category, discard }: Props) => {
                 </Stack>
             </Stack>
 
-            <Stack sx={{ display: 'block', marginLeft: 'auto' }} direction="row" spacing={1}>
+            <Stack sx={{ display: 'block', marginLeft: 'auto', marginTop: 3 }} direction="row" spacing={1}>
                 <Button variant="contained" onClick={saveCategory} disabled={loading}>Save</Button>
                 <Button variant="outlined" onClick={discard}>Discard</Button>
             </Stack>

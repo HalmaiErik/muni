@@ -45,13 +45,13 @@ public class Condition {
             return false;
         }
 
-        return Objects.equals(id, c.id) && Objects.equals(transactionColumn, c.transactionColumn)
+        return Objects.equals(transactionColumn, c.transactionColumn)
                 && Objects.equals(operation, c.operation) && Objects.equals(value, c.value) && Objects.equals(category, c.category)
                 && Objects.equals(separator, c.separator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, transactionColumn, operation, value, separator);
+        return Objects.hash(transactionColumn, operation, value, separator);
     }
 }

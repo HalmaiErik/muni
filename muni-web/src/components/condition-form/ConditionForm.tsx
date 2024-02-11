@@ -8,9 +8,10 @@ type Props = {
     condition?: ConditionDto;
     index?: number;
     addCondition: (arg0: ConditionDto) => void;
+    removeCondition: (arg0: number) => void;
 };
 
-const ConditionForm = ({ condition, index, addCondition }: Props) => {
+const ConditionForm = ({ condition, index, addCondition, removeCondition }: Props) => {
     const [column, setColumn] = useState(condition?.transactionColumn || '');
     const [operation, setOperation] = useState(condition?.operation || '');
     const [value, setValue] = useState(condition?.value || '');
@@ -26,6 +27,12 @@ const ConditionForm = ({ condition, index, addCondition }: Props) => {
             value,
             separator: separator !== '' ? separator : undefined
         });
+    }
+
+    const remove = () => {
+        if (index !== undefined) {
+            removeCondition(index);
+        }
     }
 
     const changed = () => {
@@ -67,14 +74,16 @@ const ConditionForm = ({ condition, index, addCondition }: Props) => {
             <TextField sx={{ marginRight: '8px' }} fullWidth required label="Value" value={value} onChange={(e) => setValue(e.target.value)} />
 
             {changed() &&
-                <IconButton size="large" type="submit" onSubmit={save}>
+                <IconButton size="large" type="submit">
                     <DoneIcon fontSize="inherit" />
                 </IconButton>
             }
 
-            <IconButton size="large">
-                <ClearIcon fontSize="inherit" />
-            </IconButton>
+            {index !== undefined &&
+                <IconButton size="large" onClick={remove}>
+                    <ClearIcon fontSize="inherit" />
+                </IconButton>
+            }
         </form>
     );
 };

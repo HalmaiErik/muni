@@ -45,14 +45,20 @@ public class CategoryService {
     public void createCategory(String token, CategoryDto categoryDto) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
 
-        Category toSave = CategoryMapper.dtoToEntity(categoryDto, customer);
-        Category saved = categoryRepository.save(toSave);
+        Category requestCategory = CategoryMapper.dtoToEntity(categoryDto, customer);
+        Category savedCategory = categoryRepository.save(requestCategory);
 
-        List<Condition> conditions = toSave.getConditions()
-                .stream()
-                .peek(condition -> condition.setCategory(saved))
+        Set<Condition> requestConditions = new LinkedHashSet<>(requestCategory.getConditions());
+
+        List<Condition> conditions = requestConditions.stream()
+                .peek(condition -> condition.setCategory(savedCategory))
                 .toList();
         conditionRepository.saveAll(conditions);
+
+        List<Condition> conditionsToDelete = savedCategory.getConditions().stream()
+                .filter(condition -> !requestConditions.contains(condition))
+                .toList();
+        conditionRepository.deleteAll(conditionsToDelete);
     }
 
     public List<CategoryDto> getCustomerCategories(String token) {
