@@ -61,6 +61,15 @@ public class CategoryService {
         conditionRepository.deleteAll(conditionsToDelete);
     }
 
+    public void deleteCategory(String token, Long id) {
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+        Category category = categoryValidator.getRequiredCustomerCategory(customer, id);
+
+        List<Transaction> categoryTransactions = transactionRepository.findAllByCategoriesContains(category);
+        categoryTransactions.forEach(transaction -> transaction.getCategories().remove(category));
+        transactionRepository.saveAll(categoryTransactions);
+    }
+
     public List<CategoryDto> getCustomerCategories(String token) {
         try {
             Customer customer = customerValidator.validateAndGetRequiredCustomer(token);

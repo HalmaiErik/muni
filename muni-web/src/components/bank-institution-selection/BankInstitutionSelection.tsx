@@ -1,31 +1,24 @@
 import { Avatar, List, ListItemButton, ListItemAvatar, ListItemText, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { createRequisition, getCountryInstitutions } from "../../api/bank-account-data-api";
+import { useCountryInstitutions, useCreateRequisition } from "../../api/bank-account-data-api";
 import { InstitutionDto } from "../../api/dtos";
 import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, WEB_HOME_URL, WEB_SAVE_CUSTOMER_URL } from "../../utils/constants";
 
 const BankInstitutionSelection = () => {
-    const [institutions, setInstitutions] = useState<InstitutionDto[]>([]);
-    useEffect(() => {
-        getCountryInstitutions('RO').then((data) => {
-            setInstitutions(data);
-        })
-    }, []);
+    const { data: institutions } = useCountryInstitutions('RO');
+    const { mutate: createRequisition } = useCreateRequisition();
 
     const onSelectInstitution = (institution: InstitutionDto) => {
-        createRequisition({ institutionId: institution.id, redirectUrl: WEB_HOME_URL })
-            .then(req => {
-                window.localStorage.setItem(LOCAL_STORAGE_INSTITUTION_NAME, institution.name);
-                window.localStorage.setItem(LOCAL_STORAGE_INSTITUTION_LOGO, institution.logo);
-                window.location.href = req.link;
-            });
+        createRequisition({ institutionId: institution.id, redirectUrl: WEB_HOME_URL });
+        window.localStorage.setItem(LOCAL_STORAGE_INSTITUTION_NAME, institution.name);
+        window.localStorage.setItem(LOCAL_STORAGE_INSTITUTION_LOGO, institution.logo);
     }
 
     const isLastElement = (ind: number) => {
-        return ind === institutions.length - 1;
+        return institutions && ind === institutions.length - 1;
     }
 
-    return (institutions && (
+    return institutions ?
         <>
             <Typography variant="h6" component="div" textAlign={'center'} marginBottom={2}>Select a bank institution</Typography >
             <List>
@@ -39,8 +32,8 @@ const BankInstitutionSelection = () => {
                 ))}
             </List>
         </>
-    ))
-
+        :
+        null
 };
 
 export default BankInstitutionSelection;

@@ -4,7 +4,8 @@ import CategoryForm from "../category-form/CategoryForm";
 import { useState } from "react";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import { useCategorizeAccountTransactions } from "../../api/bank-account-data-api";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useCategorizeAccountTransactions, useDeleteCategory } from "../../api/bank-account-data-api";
 
 type Props = {
     categories: CategoryDto[];
@@ -16,6 +17,7 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<CategoryDto>();
     const { mutate: categorizeAccountTransactions } = useCategorizeAccountTransactions();
+    const { mutate: deleteCategory } = useDeleteCategory();
 
     const openCreateModal = () => setCreateModalOpen(true);
     const closeCreateModal = () => setCreateModalOpen(false);
@@ -35,11 +37,17 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
         }
     };
 
+    const onDeleteCategory = (categoryId?: number) => {
+        if (categoryId) {
+            deleteCategory(categoryId);
+        }
+    }
+
     return (
         <>
-            <div style={{ display: 'flex', marginBottom: '32px', maxHeight: 256, overflow: 'auto' }}>
+            <div style={{ display: 'flex', marginBottom: '32px', maxHeight: 256, maxWidth: 1256, overflow: 'auto', scrollbarWidth: 'thin' }}>
                 {categories.map((category, index) =>
-                    <Card sx={{ maxWidth: 'fit-content', backgroundColor: `${category.colorCode}`, display: 'flex', alignItems: 'center', margin: '8px' }} key={index}>
+                    <Card sx={{ minWidth: 'fit-content', backgroundColor: `${category.colorCode}`, display: 'flex', alignItems: 'center', margin: '8px' }} key={index}>
                         <Typography sx={{ paddingLeft: '10px' }} variant="button">{category.name}</Typography>
 
                         <IconButton size="small" onClick={() => categorizeTransactions(category.id)}>
@@ -50,6 +58,10 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
                             <EditNoteIcon fontSize="inherit" />
                         </IconButton>
 
+                        <IconButton size="small" onClick={() => onDeleteCategory(category.id)}>
+                            <DeleteIcon fontSize="inherit" />
+                        </IconButton>
+
                         <Modal open={editModalOpen} onClose={closeEditModal}>
                             <Box sx={{ height: '512px', minWidth: '350px', width: '70%', padding: 3, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper' }}>
                                 <CategoryForm category={selectedCategory} discard={closeEditModal} />
@@ -58,7 +70,7 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
                     </Card>
                 )
                 }
-                <Button variant="text" size="small" onClick={openCreateModal}>Create category</Button>
+                <Button sx={{ minWidth: 'fit-content' }} variant="text" size="small" onClick={openCreateModal}>Create category</Button>
             </div>
 
             <Modal open={createModalOpen} onClose={closeCreateModal}>

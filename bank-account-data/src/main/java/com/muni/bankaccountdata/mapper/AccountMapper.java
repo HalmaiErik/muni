@@ -2,6 +2,7 @@ package com.muni.bankaccountdata.mapper;
 
 import com.muni.bankaccountdata.db.entity.Account;
 import com.muni.bankaccountdata.db.entity.Customer;
+import com.muni.bankaccountdata.dto.gocardless.AccountBalanceDto;
 import com.muni.bankaccountdata.dto.gocardless.AccountDetailsDto;
 import com.muni.bankaccountdata.dto.internal.AccountDto;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,8 @@ public class AccountMapper {
 
     private static final int DEFAULT_REQUISITION_VALIDITY_DAYS = 90;
 
-    public static Account apiDtoToEntity(AccountDetailsDto accountDetailsDto, String accountExternalId, String requisitionId,
+    public static Account apiDtoToEntity(AccountDetailsDto accountDetailsDto, AccountBalanceDto accountBalanceDto,
+                                         String accountExternalId, String requisitionId,
                                          String institutionLogo, String institutionName, Customer customer) {
         return Account.builder()
                 .externalId(accountExternalId)
@@ -25,6 +27,7 @@ public class AccountMapper {
                 .institutionName(institutionName)
                 .institutionLogo(institutionLogo)
                 .customer(customer)
+                .balance(accountBalanceDto.getAmount())
                 .build();
     }
 

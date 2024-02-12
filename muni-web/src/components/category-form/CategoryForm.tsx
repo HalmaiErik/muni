@@ -67,7 +67,7 @@ const CategoryForm = ({ category, discard }: Props) => {
                 <Stack sx={{ height: '100%', width: '100%' }} spacing={3}>
                     <Typography sx={{ textAlignLast: 'center' }} variant="h5">Conditions</Typography>
 
-                    <div style={{ overflow: 'auto' }}>
+                    <div style={{ overflow: 'auto', scrollbarWidth: 'thin' }}>
                         {conditions.map((condition, index) => (
                             <Card key={condition.id || index} sx={{ marginBottom: 2 }}>
                                 <CardContent>

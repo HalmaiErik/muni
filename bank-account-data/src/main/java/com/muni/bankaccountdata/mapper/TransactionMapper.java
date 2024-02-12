@@ -10,6 +10,8 @@ import com.muni.bankaccountdata.dto.internal.TransactionDto;
 import jakarta.persistence.Column;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,7 +35,8 @@ public class TransactionMapper {
                 .amount(transaction.getAmount())
                 .bookingDate(transaction.getBookingDate())
                 .remittanceInfo(transaction.getRemittanceInfo())
-                .categories(transaction.getCategories()
+                .categories(Optional.ofNullable(transaction.getCategories())
+                                .orElseGet(HashSet::new)
                                 .stream()
                                 .map(category -> TransactionCategoryDto.builder()
                                                     .name(category.getName())

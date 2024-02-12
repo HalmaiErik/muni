@@ -109,9 +109,10 @@ public class AccountDataService {
         List<String> accountExternalIds = getAccountIds(requisitionId);
         List<Account> accountsToSave = new LinkedList<>();
         for (String accountExternalId : accountExternalIds) {
-            AccountDetailsDto accountDetailsDto = getAccountDetails(accountExternalId);
-            Account newAccount = AccountMapper.apiDtoToEntity(accountDetailsDto, accountExternalId, requisitionId,
-                    institutionLogo, institutionName, newCustomer);
+            AccountDetailsDto accountDetailsDto = fetchAccountDetails(accountExternalId);
+            AccountBalanceDto accountBalanceDto = fetchAccountBalance(accountExternalId);
+            Account newAccount = AccountMapper.apiDtoToEntity(accountDetailsDto, accountBalanceDto, accountExternalId,
+                    requisitionId, institutionLogo, institutionName, newCustomer);
             accountsToSave.add(newAccount);
         }
 
@@ -177,7 +178,7 @@ public class AccountDataService {
         return accountIds;
     }
 
-    private AccountDetailsDto getAccountDetails(String accountExternalId) {
+    private AccountDetailsDto fetchAccountDetails(String accountExternalId) {
         ResponseEntity<AccountDetailsDto> response = goCardlessApi.getAccountDetails(accessToken.getAccessToken(), accountExternalId);
         String exceptionMessage = ACCOUNT_DETAILS_EXCEPTION_MSG.formatted(accountExternalId);
         validateResponse(response, exceptionMessage);
@@ -210,12 +211,12 @@ public class AccountDataService {
     }
 
     private void refreshAccountBalance(Account account) {
-        AccountBalanceDto accountBalanceDto = getAccountBalance(account.getExternalId());
+        AccountBalanceDto accountBalanceDto = fetchAccountBalance(account.getExternalId());
         account.setBalance(accountBalanceDto.getAmount());
         accountRepository.save(account);
     }
 
-    private AccountBalanceDto getAccountBalance(String accountExternalId) {
+    private AccountBalanceDto fetchAccountBalance(String accountExternalId) {
         ResponseEntity<AccountBalanceDto> response = goCardlessApi.getAccountBalance(accessToken.getAccessToken(), accountExternalId);
         String exceptionMessage = ACCOUNT_BALANCE_EXCEPTION_MSG.formatted(accountExternalId);
         validateResponse(response, exceptionMessage);

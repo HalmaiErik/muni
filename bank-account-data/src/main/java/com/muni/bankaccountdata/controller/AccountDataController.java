@@ -41,7 +41,7 @@ public class AccountDataController {
 
     @PostMapping("/customer/create")
     public void createCustomer(@RequestBody CreateCustomerRequest request, @RequestHeader("Authorization") String token) {
-        accountDataService.createCustomer(token, request.getRequisitionId(),
+        accountDataService.createCustomer(token.substring(BEARER_PREFIX_LENGTH), request.getRequisitionId(),
                 request.getInstitutionName(), request.getInstitutionLogo());
     }
 
@@ -63,6 +63,12 @@ public class AccountDataController {
     public void createCategory(@RequestHeader("Authorization") String token,
                                @RequestBody CategoryDto category) {
         categoryService.createCategory(token.substring(BEARER_PREFIX_LENGTH), category);
+    }
+
+    @DeleteMapping("/category/delete/{id}")
+    public void deleteCategory(@RequestHeader("Authorization") String token,
+                               @PathVariable Long id) {
+        categoryService.deleteCategory(token.substring(BEARER_PREFIX_LENGTH), id);
     }
 
     @GetMapping("/categories")

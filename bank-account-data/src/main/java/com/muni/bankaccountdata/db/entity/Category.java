@@ -30,7 +30,7 @@ public class Category {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Condition> conditions;
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)

@@ -3,17 +3,34 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useAccountFullInfo } from "../../api/bank-account-data-api";
 import TransactionsTable from "../../components/transactions-table/TransactionsTable";
-import { Card, CardContent, CardMedia, Chip, Divider, Modal, Paper, Stack, Typography } from "@mui/material";
+import { Card, CardContent, CardMedia, Chip, Divider, IconButton, LinearProgress, Modal, Paper, Stack, Typography } from "@mui/material";
 import { formatToUsd } from "../../utils/currencyFormatUtils";
 import { useEffect, useState } from "react";
 import CategoryList from "../../components/category-list/CategoryList";
 import CategoryForm from "../../components/category-form/CategoryForm";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const Account = () => {
+    const [refreshInfo, setRefreshInfo] = useState(false);
     const { accountExternalId } = useParams();
     const { currentUser } = useAuth();
-    const { data: accountInfo } = useAccountFullInfo(false, currentUser, accountExternalId);
+    const { data: accountInfo, refetch: refetchAccountInfo, isLoading, isRefetching } = useAccountFullInfo(refreshInfo, currentUser, accountExternalId);
+    const queryClient = useQueryClient();
+
+    const refreshAccountInfo = () => {
+        setRefreshInfo(true);
+        refetchAccountInfo();
+        setRefreshInfo(false);
+    };
+
+    if (isLoading || isRefetching) {
+        return (
+            <div style={{ maxWidth: 1256, margin: 'auto' }}>
+                <LinearProgress />
+            </div>
+        );
+    }
 
     return (
         <div style={{ maxWidth: 1256, margin: 'auto' }}>
@@ -33,15 +50,21 @@ const Account = () => {
                                     component="img"
                                     image={accountInfo.account.institutionLogo}
                                 />
+
                                 <Stack sx={{ flexGrow: 1 }} spacing={0.1}>
                                     <Stack direction="row" spacing={1.5}>
                                         <Typography variant="h2">{accountInfo.account.name}</Typography>
                                         <Chip sx={{ alignSelf: 'center' }} label={accountInfo.account.status} color={accountInfo.account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
+                                        <IconButton size="large" onClick={refreshAccountInfo}>
+                                            <RefreshIcon fontSize="inherit" />
+                                        </IconButton>
                                     </Stack>
+
                                     <Typography variant="subtitle1">{accountInfo.account.iban}</Typography>
                                     <Typography variant="subtitle1">{accountInfo.account.institutionName}</Typography>
                                     <Typography variant="subtitle1">{`Currency: ${accountInfo.account.currency}`}</Typography>
                                 </Stack>
+
                                 <Typography variant="h4" style={{ alignSelf: 'center' }}>{`Balance: ${formatToUsd(accountInfo.account.balance)}`}</Typography>
                             </div>
                         </CardContent>
