@@ -18,7 +18,8 @@ const useCountryInstitutions = (countryCode: string) => {
             });
             const data: InstitutionDto[] = await response.json();
             return data;
-        }
+        },
+        { refetchOnWindowFocus: false }
     );
 };
 
@@ -75,13 +76,13 @@ const useCustomerAccounts = (currentUser: User | null) => {
             const data: AccountDto[] = await response.json();
             return data;
         },
-        { enabled: !!currentUser }
+        { enabled: !!currentUser, refetchOnWindowFocus: false }
     );
 };
 
 const useAccountFullInfo = (refresh: boolean, currentUser: User | null, accountExternalId?: string) => {
     return useQuery(
-        'accountFullInfo',
+        ['accountFullInfo', refresh],
         async () => {
             const response = await fetch(baseUrl + '/account', {
                 method: 'post',
@@ -94,7 +95,7 @@ const useAccountFullInfo = (refresh: boolean, currentUser: User | null, accountE
             const data: AccountFullInfoDto = await response.json();
             return data;
         },
-        { enabled: !!accountExternalId && !!currentUser }
+        { enabled: !!accountExternalId && !!currentUser, refetchOnWindowFocus: false }
     );
 };
 

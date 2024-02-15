@@ -8,10 +8,7 @@ import com.muni.bankaccountdata.db.repository.AccountRepository;
 import com.muni.bankaccountdata.db.repository.CustomerRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
 import com.muni.bankaccountdata.dto.gocardless.*;
-import com.muni.bankaccountdata.dto.internal.AccountDto;
-import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
-import com.muni.bankaccountdata.dto.internal.CategoryDto;
-import com.muni.bankaccountdata.dto.internal.TransactionDto;
+import com.muni.bankaccountdata.dto.internal.*;
 import com.muni.bankaccountdata.dto.shared.AccessTokenCreationDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
@@ -26,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +46,7 @@ public class AccountDataService {
 
     private final GoCardlessApi goCardlessApi;
     private final CategoryService categoryService;
+    private final StatsService statsService;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -55,12 +54,13 @@ public class AccountDataService {
     private final AccountValidator accountValidator;
     private AccessToken accessToken;
 
-    public AccountDataService(GoCardlessApi goCardlessApi, CategoryService categoryService,
+    public AccountDataService(GoCardlessApi goCardlessApi, CategoryService categoryService, StatsService statsService,
                               CustomerRepository customerRepository, AccountRepository accountRepository,
                               TransactionRepository transactionRepository, CustomerValidator customerValidator,
                               AccountValidator accountValidator) {
         this.goCardlessApi = goCardlessApi;
         this.categoryService = categoryService;
+        this.statsService = statsService;
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
@@ -145,7 +145,10 @@ public class AccountDataService {
 
             AccountDto accountDto = AccountMapper.entityToInternalDto(account);
 
+            LocalDate now = LocalDate.now();
             List<CategoryDto> categories = categoryService.getCustomerCategories(customer);
+
+            StatsDto stats = statsService.getAccountMonthStats(account.getId(), now.getYear(), now.getMonthValue());
 
             List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
             List<TransactionDto> transactionDtos = transactions.stream()
@@ -155,6 +158,7 @@ public class AccountDataService {
             return AccountFullInfoDto.builder()
                     .account(accountDto)
                     .categories(categories)
+                    .stats(stats)
                     .transactions(transactionDtos)
                     .build();
         } catch (ApiException e) {

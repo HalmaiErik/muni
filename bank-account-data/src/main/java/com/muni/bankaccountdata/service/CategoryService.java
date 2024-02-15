@@ -12,6 +12,7 @@ import com.muni.bankaccountdata.mapper.CategoryMapper;
 import com.muni.bankaccountdata.validator.AccountValidator;
 import com.muni.bankaccountdata.validator.CategoryValidator;
 import com.muni.bankaccountdata.validator.CustomerValidator;
+import com.muni.bankaccountdata.validator.TransactionValidator;
 import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,16 +31,19 @@ public class CategoryService {
     private final CustomerValidator customerValidator;
     private final AccountValidator accountValidator;
     private final CategoryValidator categoryValidator;
+    private final TransactionValidator transactionValidator;
 
     public CategoryService(TransactionRepository transactionRepository, ConditionRepository conditionRepository,
                            CategoryRepository categoryRepository, CustomerValidator customerValidator,
-                           AccountValidator accountValidator, CategoryValidator categoryValidator) {
+                           AccountValidator accountValidator, CategoryValidator categoryValidator,
+                           TransactionValidator transactionValidator) {
         this.transactionRepository = transactionRepository;
         this.conditionRepository = conditionRepository;
         this.categoryRepository = categoryRepository;
         this.customerValidator = customerValidator;
         this.accountValidator = accountValidator;
         this.categoryValidator = categoryValidator;
+        this.transactionValidator = transactionValidator;
     }
 
     public void createCategory(String token, CategoryDto categoryDto) {
@@ -94,6 +98,14 @@ public class CategoryService {
         } catch (ApiException e) {
             return new ArrayList<>();
         }
+    }
+
+    public void addCategoryToTransaction(String token, String transactionExternalId, Long categoryId){
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+        Transaction transaction = transactionValidator.getRequiredCustomerTransaction(customer, transactionExternalId);
+        Category category = categoryValidator.getRequiredCustomerCategory(customer, categoryId);
+
+        addCategoryToTransaction(transaction, category);
     }
 
     public void categorizeAccountTransactions(String token, String accountExternalId, Long categoryId) {

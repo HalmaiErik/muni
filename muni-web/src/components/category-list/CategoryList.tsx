@@ -1,4 +1,4 @@
-import { Box, Button, Card, IconButton, Modal, Typography } from "@mui/material";
+import { Box, Button, Card, IconButton, Modal, Tooltip, Typography } from "@mui/material";
 import { CategoryDto } from "../../api/dtos";
 import CategoryForm from "../category-form/CategoryForm";
 import { useState } from "react";
@@ -50,17 +50,23 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
                     <Card sx={{ minWidth: 'fit-content', backgroundColor: `${category.colorCode}`, display: 'flex', alignItems: 'center', margin: '8px' }} key={index}>
                         <Typography sx={{ paddingLeft: '10px' }} variant="button">{category.name}</Typography>
 
-                        <IconButton size="small" onClick={() => categorizeTransactions(category.id)}>
-                            <PlayArrowIcon fontSize="inherit" />
-                        </IconButton>
+                        <Tooltip title="Categorize">
+                            <IconButton size="small" onClick={() => categorizeTransactions(category.id)}>
+                                <PlayArrowIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
 
-                        <IconButton size="small" onClick={() => openEditModal(category)}>
-                            <EditNoteIcon fontSize="inherit" />
-                        </IconButton>
+                        <Tooltip title="Edit">
+                            <IconButton size="small" onClick={() => openEditModal(category)}>
+                                <EditNoteIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
 
-                        <IconButton size="small" onClick={() => onDeleteCategory(category.id)}>
-                            <DeleteIcon fontSize="inherit" />
-                        </IconButton>
+                        <Tooltip title="Delete">
+                            <IconButton size="small" onClick={() => onDeleteCategory(category.id)}>
+                                <DeleteIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
 
                         <Modal open={editModalOpen} onClose={closeEditModal}>
                             <Box sx={{ height: '512px', minWidth: '350px', width: '70%', padding: 3, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper' }}>

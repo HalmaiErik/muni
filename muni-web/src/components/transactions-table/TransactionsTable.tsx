@@ -1,6 +1,7 @@
-import { Card, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from "@mui/material";
+import { Card, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Tooltip } from "@mui/material";
 import { TransactionDto } from "../../api/dtos"
 import React from "react";
+import AddIcon from '@mui/icons-material/Add';
 
 type Props = {
     transactions: TransactionDto[];
@@ -46,11 +47,17 @@ const TransactionsTable = ({ transactions }: Props) => {
                                 <TableCell align="justify">{transaction.bookingDate.toString()}</TableCell>
                                 <TableCell align="justify">{transaction.remittanceInfo || 'None'}</TableCell>
                                 <TableCell align="justify">
-                                    <div style={{ display: 'flex', overflow: 'auto' }}>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
                                         {transaction.categories.length !== 0 && transaction.categories.map((category, index) => (
-                                            <Card key={index} sx={{ height: '10px', width: '10px', backgroundColor: `${category.colorCode}`, margin: '2px' }} />
+                                            <Tooltip title={category.name}>
+                                                <Card key={index} sx={{ height: '10px', width: '10px', backgroundColor: `${category.colorCode}`, margin: '2px' }} />
+                                            </Tooltip>
                                         ))}
-                                        {transaction.categories.length === 0 && 'None'}
+                                        <Tooltip title="Add category">
+                                            <IconButton size="small">
+                                                <AddIcon fontSize="inherit" />
+                                            </IconButton>
+                                        </Tooltip>
                                     </div>
                                 </TableCell>
                             </TableRow>

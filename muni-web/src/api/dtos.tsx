@@ -49,8 +49,21 @@ export type CategoryDto = {
     conditions: ConditionDto[];
 };
 
+export type CategorySpentAmountDto = {
+    categoryName: string;
+    categoryColorCode: string;
+    spentAmount: number;
+}
+
+export type StatsDto = {
+    inAmount: number;
+    outAmount: number;
+    categorySpentAmounts: CategorySpentAmountDto[];
+}
+
 export type AccountFullInfoDto = {
     account: AccountDto;
     categories: CategoryDto[];
+    stats: StatsDto;
     transactions: TransactionDto[];
 };
