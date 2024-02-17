@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, LOCAL_STORAGE_TOKEN_KEY } from "../utils/constants";
 import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto, AccountFullInfoDto, CategoryDto } from "./dtos";
-import { CreateCustomerRequest, CreateRequisitionRequest, AccountFullInfoRequest, CategorizeAccountTransactionsRequest } from "./requests";
+import { CreateCustomerRequest, CreateRequisitionRequest, CategorizeAccountTransactionsRequest, EditTransactionCategories } from "./requests";
 import { User } from "firebase/auth";
 
 const baseUrl = 'http://localhost:8080/api/v1/bankaccount';
@@ -80,23 +80,41 @@ const useCustomerAccounts = (currentUser: User | null) => {
     );
 };
 
-const useAccountFullInfo = (refresh: boolean, currentUser: User | null, accountExternalId?: string) => {
+const useAccountFullInfo = (currentUser: User | null, accountExternalId?: string) => {
     return useQuery(
-        ['accountFullInfo', refresh],
+        ['accountFullInfo'],
         async () => {
-            const response = await fetch(baseUrl + '/account', {
-                method: 'post',
+            const response = await fetch(baseUrl + '/account/' + accountExternalId, {
+                method: 'get',
                 headers: new Headers({
                     'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
                     'Content-Type': 'application/json'
                 }),
-                body: JSON.stringify({ accountExternalId, refresh })
             });
             const data: AccountFullInfoDto = await response.json();
             return data;
         },
         { enabled: !!accountExternalId && !!currentUser, refetchOnWindowFocus: false }
     );
+};
+
+const useRefreshAccountInfo = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (accountExternalId: string) => {
+            await fetch(baseUrl + `/account/${accountExternalId}/refresh`, {
+                method: 'post',
+                headers: new Headers({
+                    'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+                    'Content-Type': 'application/json'
+                }),
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+        }
+    });
 };
 
 const useCreateCategory = () => {
@@ -138,12 +156,32 @@ const useDeleteCategory = () => {
     });
 };
 
+const useEditTransactionCategories = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (request: EditTransactionCategories) => {
+            await fetch(baseUrl + '/categorize/transaction', {
+                method: 'post',
+                headers: new Headers({
+                    'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify(request)
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+        }
+    });
+};
+
 const useCategorizeAccountTransactions = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (request: CategorizeAccountTransactionsRequest) => {
-            await fetch(baseUrl + '/categorize/account', {
+            await fetch(baseUrl + '/categorize/transaction', {
                 method: 'post',
                 headers: new Headers({
                     'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
@@ -164,7 +202,9 @@ export {
     useCreateCustomer,
     useCustomerAccounts,
     useAccountFullInfo,
+    useRefreshAccountInfo,
     useCreateCategory,
     useDeleteCategory,
+    useEditTransactionCategories,
     useCategorizeAccountTransactions
 };

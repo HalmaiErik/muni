@@ -21,6 +21,7 @@ export type AccountDto = {
 };
 
 export type TransactionCategoryDto = {
+    id: number;
     name: string;
     colorCode: string;
 };

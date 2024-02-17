@@ -10,6 +10,8 @@ import java.util.List;
 @Builder
 public class TransactionDto {
 
+    private String externalId;
+
     private String refFromInstitution;
 
     private String debtorName;

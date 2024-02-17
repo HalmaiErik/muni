@@ -13,9 +13,7 @@ import com.muni.bankaccountdata.validator.AccountValidator;
 import com.muni.bankaccountdata.validator.CategoryValidator;
 import com.muni.bankaccountdata.validator.CustomerValidator;
 import com.muni.bankaccountdata.validator.TransactionValidator;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -100,12 +98,15 @@ public class CategoryService {
         }
     }
 
-    public void addCategoryToTransaction(String token, String transactionExternalId, Long categoryId){
+    public void editTransactionCategories(String token, String transactionExternalId, List<Long> categoryIds){
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Transaction transaction = transactionValidator.getRequiredCustomerTransaction(customer, transactionExternalId);
-        Category category = categoryValidator.getRequiredCustomerCategory(customer, categoryId);
+        Set<Category> categories = categoryIds.stream()
+                .map(categoryId -> categoryValidator.getRequiredCustomerCategory(customer, categoryId))
+                .collect(Collectors.toSet());
 
-        addCategoryToTransaction(transaction, category);
+        transaction.setCategories(categories);
+        transactionRepository.save(transaction);
     }
 
     public void categorizeAccountTransactions(String token, String accountExternalId, Long categoryId) {

@@ -133,37 +133,40 @@ public class AccountDataService {
         }
     }
 
-    public AccountFullInfoDto getAccountFullInfo(String token, String accountExternalId, boolean refresh) {
-        try {
-            Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
-            Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
+    public AccountFullInfoDto getAccountFullInfo(String token, String accountExternalId) {
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+        Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
-            if (refresh) {
-                refreshAccountTransactions(customer, account);
-                refreshAccountBalance(account);
-            }
+        return getAccountFullInfo(customer, account);
+    }
 
-            AccountDto accountDto = AccountMapper.entityToInternalDto(account);
+    public void refreshAccountInfo(String token, String accountExternalId) {
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+        Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
-            LocalDate now = LocalDate.now();
-            List<CategoryDto> categories = categoryService.getCustomerCategories(customer);
+        refreshAccountTransactions(customer, account);
+        refreshAccountBalance(account);
+    }
 
-            StatsDto stats = statsService.getAccountMonthStats(account.getId(), now.getYear(), now.getMonthValue());
+    private AccountFullInfoDto getAccountFullInfo(Customer customer, Account account) {
+        AccountDto accountDto = AccountMapper.entityToInternalDto(account);
 
-            List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
-            List<TransactionDto> transactionDtos = transactions.stream()
-                    .map(TransactionMapper::entityToInternalDto)
-                    .toList();
+        LocalDate now = LocalDate.now();
+        List<CategoryDto> categories = categoryService.getCustomerCategories(customer);
 
-            return AccountFullInfoDto.builder()
-                    .account(accountDto)
-                    .categories(categories)
-                    .stats(stats)
-                    .transactions(transactionDtos)
-                    .build();
-        } catch (ApiException e) {
-            return AccountFullInfoDto.builder().build();
-        }
+        StatsDto stats = statsService.getAccountMonthStats(account.getId(), now.getYear(), now.getMonthValue());
+
+        List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
+        List<TransactionDto> transactionDtos = transactions.stream()
+                .map(TransactionMapper::entityToInternalDto)
+                .toList();
+
+        return AccountFullInfoDto.builder()
+                .account(accountDto)
+                .categories(categories)
+                .stats(stats)
+                .transactions(transactionDtos)
+                .build();
     }
 
     public void accessToken() {

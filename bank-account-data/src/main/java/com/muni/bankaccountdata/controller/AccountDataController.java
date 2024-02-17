@@ -51,12 +51,17 @@ public class AccountDataController {
                 .body(accountDataService.getCustomerAccounts(token.substring(BEARER_PREFIX_LENGTH)));
     }
 
-    @PostMapping("/account")
+    @GetMapping("/account/{accountExternalId}")
     public ResponseEntity<AccountFullInfoDto> accountFullInfo(@RequestHeader("Authorization") String token,
-                                                              @RequestBody AccountFullInfoRequest request) {
+                                                              @PathVariable String accountExternalId) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(accountDataService.getAccountFullInfo(token.substring(BEARER_PREFIX_LENGTH),
-                        request.getAccountExternalId(), request.isRefresh()));
+                .body(accountDataService.getAccountFullInfo(token.substring(BEARER_PREFIX_LENGTH), accountExternalId));
+    }
+
+    @PostMapping("/account/{accountExternalId}/refresh")
+    public void refreshAccountInfo(@RequestHeader("Authorization") String token,
+                                   @PathVariable String accountExternalId) {
+        accountDataService.refreshAccountInfo(token.substring(BEARER_PREFIX_LENGTH), accountExternalId);
     }
 
     @PostMapping("/category/create")
@@ -75,6 +80,13 @@ public class AccountDataController {
     public ResponseEntity<List<CategoryDto>> getCustomerCategories(@RequestHeader("Authorization") String token) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(categoryService.getCustomerCategories(token.substring(BEARER_PREFIX_LENGTH)));
+    }
+
+    @PostMapping("/categorize/transaction")
+    public void editTransactionCategories(@RequestHeader("Authorization") String token,
+                                           @RequestBody EditTransactionCategoriesRequest request) {
+        categoryService.editTransactionCategories(token.substring(BEARER_PREFIX_LENGTH),
+                request.getTransactionExternalId(), request.getCategoryIds());
     }
 
     @PostMapping("/categorize/account")

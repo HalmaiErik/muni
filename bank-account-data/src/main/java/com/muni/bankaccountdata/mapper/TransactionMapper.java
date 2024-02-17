@@ -31,6 +31,7 @@ public class TransactionMapper {
 
     public static TransactionDto entityToInternalDto(Transaction transaction) {
         return TransactionDto.builder()
+                .externalId(transaction.getExternalId())
                 .refFromInstitution(transaction.getRefFromInstitution())
                 .amount(transaction.getAmount())
                 .bookingDate(transaction.getBookingDate())
@@ -39,6 +40,7 @@ public class TransactionMapper {
                                 .orElseGet(HashSet::new)
                                 .stream()
                                 .map(category -> TransactionCategoryDto.builder()
+                                                    .id(category.getId())
                                                     .name(category.getName())
                                                     .colorCode(category.getColorCode())
                                                     .build())

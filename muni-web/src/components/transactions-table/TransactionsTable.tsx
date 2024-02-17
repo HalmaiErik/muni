@@ -1,13 +1,17 @@
-import { Card, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Tooltip } from "@mui/material";
-import { TransactionDto } from "../../api/dtos"
-import React from "react";
+import { Card, Checkbox, FormControlLabel, IconButton, Paper, Popover, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Tooltip } from "@mui/material";
+import { CategoryDto, TransactionCategoryDto, TransactionDto } from "../../api/dtos"
+import React, { useState } from "react";
 import AddIcon from '@mui/icons-material/Add';
+import { useEditTransactionCategories } from "../../api/bank-account-data-api";
+import { CheckBox } from "@mui/icons-material";
+import TransactionCategories from "../transaction-categories/TransactionCategories";
 
 type Props = {
     transactions: TransactionDto[];
+    categories: CategoryDto[];
 };
 
-const TransactionsTable = ({ transactions }: Props) => {
+const TransactionsTable = ({ transactions, categories }: Props) => {
     const [page, setPage] = React.useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = React.useState<number>(10);
 
@@ -33,32 +37,15 @@ const TransactionsTable = ({ transactions }: Props) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {transactions
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((transaction, index) => (
-                            <TableRow
-                                key={index}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell component="th" scope="row">
-                                    {transaction.refFromInstitution}
-                                </TableCell>
+                            <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                <TableCell component="th" scope="row">{transaction.refFromInstitution}</TableCell>
                                 <TableCell align="justify">{transaction.amount}</TableCell>
                                 <TableCell align="justify">{transaction.bookingDate.toString()}</TableCell>
                                 <TableCell align="justify">{transaction.remittanceInfo || 'None'}</TableCell>
                                 <TableCell align="justify">
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-                                        {transaction.categories.length !== 0 && transaction.categories.map((category, index) => (
-                                            <Tooltip title={category.name}>
-                                                <Card key={index} sx={{ height: '10px', width: '10px', backgroundColor: `${category.colorCode}`, margin: '2px' }} />
-                                            </Tooltip>
-                                        ))}
-                                        <Tooltip title="Add category">
-                                            <IconButton size="small">
-                                                <AddIcon fontSize="inherit" />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </div>
+                                    <TransactionCategories transaction={transaction} customerCategories={categories} />
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -9,9 +9,9 @@ export type CreateCustomerRequest = {
     institutionLogo: string;
 };
 
-export type AccountFullInfoRequest = {
-    accountExternalId: string;
-    refresh: boolean;
+export type EditTransactionCategories = {
+    transactionExternalId: string;
+    categoryIds: number[];
 };
 
 export type CategorizeAccountTransactionsRequest = {

@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class TransactionCategoryDto {
 
+    private Long id;
+
     private String name;
 
     private String colorCode;

@@ -1,7 +1,7 @@
 import { AccountFullInfoDto, TransactionDto } from "../../api/dtos";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { useAccountFullInfo } from "../../api/bank-account-data-api";
+import { useAccountFullInfo, useRefreshAccountInfo } from "../../api/bank-account-data-api";
 import TransactionsTable from "../../components/transactions-table/TransactionsTable";
 import { Card, CardContent, CardMedia, Chip, Divider, IconButton, LinearProgress, Modal, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import { formatToUsd } from "../../utils/currencyFormatUtils";
@@ -13,17 +13,18 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ChartList from "../../components/chart-list/ChartList";
 
 const Account = () => {
-    const [refreshInfo, setRefreshInfo] = useState(false);
     const { accountExternalId } = useParams();
     const { currentUser } = useAuth();
-    const { data: accountInfo, refetch: refetchAccountInfo, isLoading, isRefetching } = useAccountFullInfo(refreshInfo, currentUser, accountExternalId);
-    const queryClient = useQueryClient();
+    const { data: accountInfo, isLoading } = useAccountFullInfo(currentUser, accountExternalId);
+    const { mutate: refreshAccountInfo, isLoading: isRefreshing } = useRefreshAccountInfo();
 
-    const refreshAccountInfo = () => {
-        setRefreshInfo(true);
+    const refreshInfo = () => {
+        if (accountExternalId) {
+            refreshAccountInfo(accountExternalId);
+        }
     };
 
-    if (isLoading || isRefetching) {
+    if (isLoading || isRefreshing) {
         return (
             <div style={{ maxWidth: 1256, margin: 'auto' }}>
                 <LinearProgress />
@@ -55,7 +56,7 @@ const Account = () => {
                                         <Typography variant="h2">{accountInfo.account.name}</Typography>
                                         <Chip sx={{ alignSelf: 'center' }} label={accountInfo.account.status} color={accountInfo.account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
                                         <Tooltip title="Refresh info">
-                                            <IconButton size="large" onClick={refreshAccountInfo}>
+                                            <IconButton size="large" onClick={refreshInfo}>
                                                 <RefreshIcon fontSize="inherit" />
                                             </IconButton>
                                         </Tooltip>
@@ -80,7 +81,7 @@ const Account = () => {
                     </Card>
 
                     <Card variant="outlined">
-                        <TransactionsTable transactions={accountInfo.transactions} />
+                        <TransactionsTable transactions={accountInfo.transactions} categories={accountInfo.categories} />
                     </Card>
                 </>
             )}
