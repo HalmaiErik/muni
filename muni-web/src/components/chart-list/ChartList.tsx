@@ -1,6 +1,5 @@
 import { BarChart, PieChart } from "@mui/x-charts";
 import { StatsDto } from "../../api/dtos";
-import { Card, CardContent } from "@mui/material";
 
 type Props = {
     stats: StatsDto;
@@ -8,7 +7,7 @@ type Props = {
 
 const ChartList = ({ stats }: Props) => {
     return (
-        <>
+        <div style={{ display: 'flex' }}>
             <PieChart
                 height={256}
                 width={384}
@@ -30,7 +29,7 @@ const ChartList = ({ stats }: Props) => {
                         label: categorySpentAmount.categoryName
                     }
                 ))} />
-        </>
+        </div>
     );
 };
 

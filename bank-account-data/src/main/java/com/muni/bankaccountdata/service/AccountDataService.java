@@ -1,5 +1,6 @@
 package com.muni.bankaccountdata.service;
 
+import com.muni.bankaccountdata.api.frankfurter.FrankfurterApi;
 import com.muni.bankaccountdata.api.gocardless.GoCardlessApi;
 import com.muni.bankaccountdata.db.entity.Account;
 import com.muni.bankaccountdata.db.entity.Customer;
@@ -7,8 +8,12 @@ import com.muni.bankaccountdata.db.entity.Transaction;
 import com.muni.bankaccountdata.db.repository.AccountRepository;
 import com.muni.bankaccountdata.db.repository.CustomerRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
+import com.muni.bankaccountdata.dto.frankfurter.ConversionRateToUsd;
 import com.muni.bankaccountdata.dto.gocardless.*;
-import com.muni.bankaccountdata.dto.internal.*;
+import com.muni.bankaccountdata.dto.internal.AccountDto;
+import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
+import com.muni.bankaccountdata.dto.internal.CategoryDto;
+import com.muni.bankaccountdata.dto.internal.TransactionDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenCreationDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
@@ -23,12 +28,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +49,7 @@ public class AccountDataService {
     private static final int ACCESS_TOKEN_EXPIRATION_THRESHOLD = 10;
 
     private final GoCardlessApi goCardlessApi;
+    private final FrankfurterApi frankfurterApi;
     private final CategoryService categoryService;
     private final StatsService statsService;
     private final CustomerRepository customerRepository;
@@ -54,11 +59,12 @@ public class AccountDataService {
     private final AccountValidator accountValidator;
     private AccessToken accessToken;
 
-    public AccountDataService(GoCardlessApi goCardlessApi, CategoryService categoryService, StatsService statsService,
-                              CustomerRepository customerRepository, AccountRepository accountRepository,
+    public AccountDataService(GoCardlessApi goCardlessApi, FrankfurterApi frankfurterApi, CategoryService categoryService,
+                              StatsService statsService, CustomerRepository customerRepository, AccountRepository accountRepository,
                               TransactionRepository transactionRepository, CustomerValidator customerValidator,
                               AccountValidator accountValidator) {
         this.goCardlessApi = goCardlessApi;
+        this.frankfurterApi = frankfurterApi;
         this.categoryService = categoryService;
         this.statsService = statsService;
         this.customerRepository = customerRepository;
@@ -144,17 +150,22 @@ public class AccountDataService {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
-        refreshAccountTransactions(customer, account);
-        refreshAccountBalance(account);
+        try {
+            ExecutorService executorService = Executors.newFixedThreadPool(2);
+            executorService.execute(() -> refreshAccountTransactions(customer, account));
+            executorService.execute(() -> refreshAccountBalance(account));
+
+            executorService.shutdown();
+            executorService.awaitTermination(5, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     private AccountFullInfoDto getAccountFullInfo(Customer customer, Account account) {
         AccountDto accountDto = AccountMapper.entityToInternalDto(account);
 
-        LocalDate now = LocalDate.now();
         List<CategoryDto> categories = categoryService.getCustomerCategories(customer);
-
-        StatsDto stats = statsService.getAccountMonthStats(account.getId(), now.getYear(), now.getMonthValue());
 
         List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
         List<TransactionDto> transactionDtos = transactions.stream()
@@ -164,7 +175,6 @@ public class AccountDataService {
         return AccountFullInfoDto.builder()
                 .account(accountDto)
                 .categories(categories)
-                .stats(stats)
                 .transactions(transactionDtos)
                 .build();
     }
@@ -207,12 +217,24 @@ public class AccountDataService {
     }
 
     private void saveNewAccountTransactions(Customer customer, Account account, List<AccountTransactionDto> accountTransactions) {
+        Map<String, Double> currencyRateCache = new HashMap<>();
         for (AccountTransactionDto accountTransaction : accountTransactions) {
             if (transactionRepository.existsTransactionByExternalId(accountTransaction.getTransactionId())) {
                 continue;
             }
 
-            Transaction newTransaction = TransactionMapper.apiDtoToEntity(accountTransaction, customer, account);
+            String currency = accountTransaction.getCurrency();
+            Double currencyConversionRateToUsd;
+            if (!currencyRateCache.containsKey(currency)) {
+                Double conversionRate = frankfurterApi.getConversionRateToUsd(currency).getBody().getRate();
+                currencyRateCache.put(currency, conversionRate);
+                currencyConversionRateToUsd = conversionRate;
+            }
+            else {
+                currencyConversionRateToUsd = currencyRateCache.get(currency);
+            }
+
+            Transaction newTransaction = TransactionMapper.apiDtoToEntity(accountTransaction, customer, account, currencyConversionRateToUsd);
             transactionRepository.save(newTransaction);
         }
     }

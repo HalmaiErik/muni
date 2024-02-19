@@ -18,3 +18,8 @@ export type CategorizeAccountTransactionsRequest = {
     accountExternalId: string;
     categoryId: number;
 };
+
+export type GetStatsRequest = {
+    from: Date;
+    to: Date;
+}

@@ -1,7 +1,6 @@
-import { ReactNode, useState, useEffect, useContext } from "react";
-import { auth } from "../config/firebase";
 import { User, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import React from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
+import { auth } from "../config/firebase";
 
 type Props = {
     children: ReactNode;

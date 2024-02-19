@@ -1,11 +1,11 @@
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Box, Button, Card, IconButton, Modal, Tooltip, Typography } from "@mui/material";
+import { useState } from "react";
+import { useCategorizeAccountTransactions, useDeleteCategory } from "../../api/bank-account-data-api";
 import { CategoryDto } from "../../api/dtos";
 import CategoryForm from "../category-form/CategoryForm";
-import { useState } from "react";
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useCategorizeAccountTransactions, useDeleteCategory } from "../../api/bank-account-data-api";
 
 type Props = {
     categories: CategoryDto[];

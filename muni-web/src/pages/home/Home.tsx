@@ -1,13 +1,11 @@
-import { Paper, Stack } from "@mui/material";
-import Auth from "../../components/auth/Auth"
-import { useAuth } from "../../contexts/AuthContext";
-import styles from "./Home.module.css"
-import BankInstitutionSelection from "../../components/bank-institution-selection/BankInstitutionSelection";
-import { useEffect, useState } from "react";
-import { AccountDto } from "../../api/dtos";
-import { useCreateCustomer, useCustomerAccounts } from "../../api/bank-account-data-api";
+import { Paper } from "@mui/material";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useCreateCustomer, useCustomerAccounts } from "../../api/bank-account-data-api";
 import AccountsList from "../../components/accounts-list/AccountsList";
+import Auth from "../../components/auth/Auth";
+import BankInstitutionSelection from "../../components/bank-institution-selection/BankInstitutionSelection";
+import { useAuth } from "../../contexts/AuthContext";
 import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME } from "../../utils/constants";
 
 const Home = () => {
@@ -42,7 +40,11 @@ const Home = () => {
                     {currentUser && <BankInstitutionSelection />}
                 </Paper>
             )}
-            {accounts && accounts.length !== 0 && <AccountsList accounts={accounts} />}
+            {accounts && accounts.length !== 0 && (
+                <div style={{ maxWidth: '1256px', margin: 'auto' }}>
+                    <AccountsList accounts={accounts} />
+                </div>
+            )}
         </>
     );
 };

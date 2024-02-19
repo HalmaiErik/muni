@@ -1,8 +1,8 @@
-import { Button, Card, Checkbox, FormControlLabel, IconButton, Popover, Tooltip } from "@mui/material";
-import { CategoryDto, TransactionCategoryDto, TransactionDto } from "../../api/dtos";
 import AddIcon from '@mui/icons-material/Add';
+import { Button, Card, Checkbox, FormControlLabel, IconButton, Popover, Tooltip } from "@mui/material";
 import { useState } from "react";
 import { useEditTransactionCategories } from "../../api/bank-account-data-api";
+import { CategoryDto, TransactionDto } from "../../api/dtos";
 
 type Props = {
     transaction: TransactionDto;
@@ -52,8 +52,6 @@ const TransactionCategories = ({ transaction, customerCategories }: Props) => {
             const index = selectedCatergories.findIndex(selectedId => selectedId === id)
             selectedCatergories = [...selectedCatergories.slice(0, index), ...selectedCatergories.slice(index + 1)];
         }
-
-        console.log(selectedCatergories);
     };
 
     return (
@@ -91,7 +89,7 @@ const TransactionCategories = ({ transaction, customerCategories }: Props) => {
                         </div>
                     ))}
                     <Button sx={{ marginRight: '8px' }} variant="contained" size="small" onClick={editCategories}>Save</Button>
-                    <Button variant="outlined" size="small">Discard</Button>
+                    <Button variant="outlined" size="small" onClick={handleClosePopover}>Discard</Button>
                 </div>
             </Popover>
         </>

@@ -1,10 +1,9 @@
-import { Accordion, AccordionDetails, AccordionSummary, Button, Card, CardContent, Divider, Stack, TextField, Typography } from "@mui/material";
-import { CategoryDto, ConditionDto } from "../../api/dtos"
-import { useEffect, useRef, useState } from "react";
+import { Button, Card, CardContent, Divider, Stack, TextField, Typography } from "@mui/material";
 import { MuiColorInput } from "mui-color-input";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ConditionForm from "../condition-form/ConditionForm";
+import { useRef, useState } from "react";
 import { useCreateCategory } from "../../api/bank-account-data-api";
+import { CategoryDto, ConditionDto } from "../../api/dtos";
+import ConditionForm from "../condition-form/ConditionForm";
 
 type Props = {
     category?: CategoryDto;

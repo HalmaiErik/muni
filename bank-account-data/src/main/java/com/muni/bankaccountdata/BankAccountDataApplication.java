@@ -7,7 +7,6 @@ import com.muni.bankaccountdata.service.AccountDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
@@ -18,7 +17,6 @@ import java.io.IOException;
 
 @SpringBootApplication
 @RequiredArgsConstructor
-@EnableCaching
 public class BankAccountDataApplication {
 
     public static void main(String[] args) throws IOException {

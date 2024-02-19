@@ -3,7 +3,6 @@ package com.muni.bankaccountdata.validator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.muni.bankaccountdata.api.Api;
 import com.muni.bankaccountdata.db.entity.Customer;
 import com.muni.bankaccountdata.db.repository.CustomerRepository;
 import com.muni.bankaccountdata.exception.ApiException;

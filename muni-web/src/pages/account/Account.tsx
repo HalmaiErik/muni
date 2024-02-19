@@ -1,21 +1,27 @@
-import { AccountFullInfoDto, TransactionDto } from "../../api/dtos";
-import { useParams } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { useAccountFullInfo, useRefreshAccountInfo } from "../../api/bank-account-data-api";
-import TransactionsTable from "../../components/transactions-table/TransactionsTable";
-import { Card, CardContent, CardMedia, Chip, Divider, IconButton, LinearProgress, Modal, Paper, Stack, Tooltip, Typography } from "@mui/material";
-import { formatToUsd } from "../../utils/currencyFormatUtils";
-import { useEffect, useState } from "react";
-import CategoryList from "../../components/category-list/CategoryList";
-import CategoryForm from "../../components/category-form/CategoryForm";
-import { useQuery, useQueryClient } from "react-query";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Card, CardContent, CardMedia, Chip, IconButton, LinearProgress, Stack, Tooltip, Typography } from "@mui/material";
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { useState } from 'react';
+import { useParams } from "react-router-dom";
+import { useAccountFullInfo, useGetAccountStats, useRefreshAccountInfo } from "../../api/bank-account-data-api";
+import CategoryList from "../../components/category-list/CategoryList";
 import ChartList from "../../components/chart-list/ChartList";
+import TransactionsTable from "../../components/transactions-table/TransactionsTable";
+import { useAuth } from "../../contexts/AuthContext";
+import { formatToUsd } from "../../utils/currencyFormatUtils";
 
 const Account = () => {
+    const today = new Date();
+    const firstOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const [fromDate, setFromDate] = useState<Dayjs>(dayjs(firstOfThisMonth));
+    const [toDate, setToDate] = useState<Dayjs>(dayjs(today));
+
     const { accountExternalId } = useParams();
     const { currentUser } = useAuth();
-    const { data: accountInfo, isLoading } = useAccountFullInfo(currentUser, accountExternalId);
+    const { data: accountInfo, isLoading: accountInfoLoading, isRefetching: accountInfoRefetching } = useAccountFullInfo(currentUser, accountExternalId);
+    const { data: stats, isLoading: statsLoading, isRefetching: statsRefetching } = useGetAccountStats(currentUser, { from: fromDate.toDate(), to: toDate.toDate() }, accountExternalId);
     const { mutate: refreshAccountInfo, isLoading: isRefreshing } = useRefreshAccountInfo();
 
     const refreshInfo = () => {
@@ -24,13 +30,27 @@ const Account = () => {
         }
     };
 
-    if (isLoading || isRefreshing) {
+    if (accountInfoLoading || accountInfoRefetching
+        || statsLoading || statsRefetching
+        || isRefreshing) {
         return (
             <div style={{ maxWidth: 1256, margin: 'auto' }}>
                 <LinearProgress />
             </div>
         );
     }
+
+    const changeFromDate = (val: Dayjs | null) => {
+        if (val) {
+            setFromDate(val);
+        }
+    };
+
+    const changeToDate = (val: Dayjs | null) => {
+        if (val) {
+            setToDate(val);
+        }
+    };
 
     return (
         <div style={{ maxWidth: 1256, margin: 'auto', padding: '32px' }}>
@@ -74,11 +94,33 @@ const Account = () => {
 
                     <CategoryList accountExternalId={accountExternalId} categories={accountInfo.categories} />
 
-                    <Card sx={{ marginBottom: '32px' }}>
-                        <CardContent sx={{ display: 'flex' }}>
-                            <ChartList stats={accountInfo.stats} />
-                        </CardContent>
-                    </Card>
+                    {stats && (
+                        <Card sx={{ marginBottom: '32px' }}>
+                            <CardContent>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <div style={{ display: 'flex', marginBottom: '32px' }}>
+                                        <DatePicker
+                                            sx={{ width: '192px', marginRight: '8px' }}
+                                            label="From"
+                                            slotProps={{ textField: { size: 'small' } }}
+                                            onChange={changeFromDate}
+                                            value={fromDate}
+                                            disableFuture
+                                        />
+                                        <DatePicker
+                                            sx={{ width: '192px', marginRight: '8px' }}
+                                            label="To"
+                                            slotProps={{ textField: { size: 'small' } }}
+                                            onChange={changeToDate}
+                                            value={toDate}
+                                        />
+                                    </div>
+                                </LocalizationProvider>
+
+                                <ChartList stats={stats} />
+                            </CardContent>
+                        </Card>
+                    )}
 
                     <Card variant="outlined">
                         <TransactionsTable transactions={accountInfo.transactions} categories={accountInfo.categories} />

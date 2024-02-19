@@ -1,9 +1,7 @@
 package com.muni.bankaccountdata.validator;
 
-import com.muni.bankaccountdata.db.entity.Account;
 import com.muni.bankaccountdata.db.entity.Customer;
 import com.muni.bankaccountdata.db.entity.Transaction;
-import com.muni.bankaccountdata.db.repository.AccountRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
 import com.muni.bankaccountdata.exception.ApiException;
 import org.springframework.stereotype.Component;

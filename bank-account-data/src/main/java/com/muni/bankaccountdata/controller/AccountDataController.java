@@ -3,11 +3,13 @@ package com.muni.bankaccountdata.controller;
 import com.muni.bankaccountdata.dto.internal.AccountDto;
 import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
 import com.muni.bankaccountdata.dto.internal.CategoryDto;
+import com.muni.bankaccountdata.dto.internal.StatsDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
 import com.muni.bankaccountdata.dto.shared.RequisitionDto;
 import com.muni.bankaccountdata.request.*;
 import com.muni.bankaccountdata.service.AccountDataService;
 import com.muni.bankaccountdata.service.CategoryService;
+import com.muni.bankaccountdata.service.StatsService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ public class AccountDataController {
 
     private final AccountDataService accountDataService;
     private final CategoryService categoryService;
+    private final StatsService statsService;
 
     @GetMapping("/institutions/{countryCode}")
     public ResponseEntity<List<InstitutionDto>> getCountryInstitutions(@PathVariable String countryCode) {
@@ -62,6 +65,15 @@ public class AccountDataController {
     public void refreshAccountInfo(@RequestHeader("Authorization") String token,
                                    @PathVariable String accountExternalId) {
         accountDataService.refreshAccountInfo(token.substring(BEARER_PREFIX_LENGTH), accountExternalId);
+    }
+
+    @PostMapping("/stats/account/{accountExternalId}")
+    public ResponseEntity<StatsDto> getAccountStats(@RequestHeader("Authorization") String token,
+                                                    @PathVariable String accountExternalId,
+                                                    @RequestBody GetStatsRequest request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(statsService.getAccountStatsBetweenDates(token.substring(BEARER_PREFIX_LENGTH), accountExternalId,
+                        request.getFrom(), request.getTo()));
     }
 
     @PostMapping("/category/create")

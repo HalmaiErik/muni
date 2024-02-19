@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import styles from "./Auth.module.css"
+import { useState } from "react";
+import styles from "./Auth.module.css";
 import Login from "./Login";
 import Register from "./Register";
 

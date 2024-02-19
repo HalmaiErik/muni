@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
-import { CategoryDto, ConditionDto } from "../../api/dtos"
-import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
 import DoneIcon from '@mui/icons-material/Done';
+import { FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { useState } from "react";
+import { ConditionDto } from "../../api/dtos";
 
 type Props = {
     condition?: ConditionDto;

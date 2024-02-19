@@ -15,6 +15,8 @@ public class AccountTransactionDto {
 
     private Double amount;
 
+    private String currency;
+
     private LocalDate bookingDate;
 
     private String remittanceInfo;

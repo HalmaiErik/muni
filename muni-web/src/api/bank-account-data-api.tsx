@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, LOCAL_STORAGE_TOKEN_KEY } from "../utils/constants";
-import { AccountDto, RequisitionDto, InstitutionDto, TransactionDto, AccountFullInfoDto, CategoryDto } from "./dtos";
-import { CreateCustomerRequest, CreateRequisitionRequest, CategorizeAccountTransactionsRequest, EditTransactionCategories } from "./requests";
 import { User } from "firebase/auth";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { LOCAL_STORAGE_TOKEN_KEY } from "../utils/constants";
+import { AccountDto, AccountFullInfoDto, CategoryDto, InstitutionDto, RequisitionDto, StatsDto } from "./dtos";
+import { CategorizeAccountTransactionsRequest, CreateCustomerRequest, CreateRequisitionRequest, EditTransactionCategories, GetStatsRequest } from "./requests";
 
 const baseUrl = 'http://localhost:8080/api/v1/bankaccount';
 
@@ -112,10 +112,30 @@ const useRefreshAccountInfo = () => {
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] });
+            queryClient.invalidateQueries({ queryKey: ['statsAccount'] });
         }
     });
 };
+
+const useGetAccountStats = (currentUser: User | null, request: GetStatsRequest, accountExternalId?: string) => {
+    return useQuery(
+        ['statsAccount', request.from.toDateString(), request.to.toDateString()],
+        async () => {
+            const response = await fetch(baseUrl + '/stats/account/' + accountExternalId, {
+                method: 'post',
+                headers: new Headers({
+                    'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify(request)
+            });
+            const data: StatsDto = await response.json();
+            return data;
+        },
+        { enabled: !!accountExternalId && !!currentUser, refetchOnWindowFocus: false }
+    );
+}
 
 const useCreateCategory = () => {
     const queryClient = useQueryClient();
@@ -132,7 +152,7 @@ const useCreateCategory = () => {
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] });
         }
     });
 };
@@ -151,7 +171,8 @@ const useDeleteCategory = () => {
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] });
+            queryClient.invalidateQueries({ queryKey: ['statsAccount'] });
         }
     });
 };
@@ -171,7 +192,8 @@ const useEditTransactionCategories = () => {
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] });
+            queryClient.invalidateQueries({ queryKey: ['statsAccount'] });
         }
     });
 };
@@ -181,7 +203,7 @@ const useCategorizeAccountTransactions = () => {
 
     return useMutation({
         mutationFn: async (request: CategorizeAccountTransactionsRequest) => {
-            await fetch(baseUrl + '/categorize/transaction', {
+            await fetch(baseUrl + '/categorize/account', {
                 method: 'post',
                 headers: new Headers({
                     'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
@@ -191,20 +213,14 @@ const useCategorizeAccountTransactions = () => {
             });
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] })
+            queryClient.invalidateQueries({ queryKey: ['accountFullInfo'] });
+            queryClient.invalidateQueries({ queryKey: ['statsAccount'] });
         }
     });
 };
 
 export {
-    useCountryInstitutions,
-    useCreateRequisition,
-    useCreateCustomer,
-    useCustomerAccounts,
-    useAccountFullInfo,
-    useRefreshAccountInfo,
-    useCreateCategory,
-    useDeleteCategory,
-    useEditTransactionCategories,
-    useCategorizeAccountTransactions
+    useAccountFullInfo, useCategorizeAccountTransactions, useCountryInstitutions, useCreateCategory, useCreateCustomer, useCreateRequisition, useCustomerAccounts, useDeleteCategory,
+    useEditTransactionCategories, useGetAccountStats, useRefreshAccountInfo
 };
+

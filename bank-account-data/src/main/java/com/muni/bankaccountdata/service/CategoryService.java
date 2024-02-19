@@ -3,8 +3,8 @@ package com.muni.bankaccountdata.service;
 import com.muni.bankaccountdata.db.entity.*;
 import com.muni.bankaccountdata.db.entity.enums.Operation;
 import com.muni.bankaccountdata.db.entity.enums.Separator;
-import com.muni.bankaccountdata.db.repository.ConditionRepository;
 import com.muni.bankaccountdata.db.repository.CategoryRepository;
+import com.muni.bankaccountdata.db.repository.ConditionRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
 import com.muni.bankaccountdata.dto.internal.CategoryDto;
 import com.muni.bankaccountdata.exception.ApiException;
@@ -70,6 +70,8 @@ public class CategoryService {
         List<Transaction> categoryTransactions = transactionRepository.findAllByCategoriesContains(category);
         categoryTransactions.forEach(transaction -> transaction.getCategories().remove(category));
         transactionRepository.saveAll(categoryTransactions);
+
+        categoryRepository.deleteById(id);
     }
 
     public List<CategoryDto> getCustomerCategories(String token) {

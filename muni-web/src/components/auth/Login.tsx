@@ -33,19 +33,19 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
             <Stack spacing={"16px"}>
                 <Typography variant="h4" textAlign={"center"}>
-                        Login
+                    Login
                 </Typography>
 
                 {error && <Alert severity="error">{error}</Alert>}
 
-                <TextField 
-                    name="email" 
-                    label="Email" 
+                <TextField
+                    name="email"
+                    label="Email"
                     type="email"
                     inputRef={emailRef} />
-                <TextField 
-                    name="password" 
-                    label="Password" 
+                <TextField
+                    name="password"
+                    label="Password"
                     type="password"
                     inputRef={passwordRef} />
                 <Button type="submit" variant="outlined" disabled={loading}>Sign in</Button>

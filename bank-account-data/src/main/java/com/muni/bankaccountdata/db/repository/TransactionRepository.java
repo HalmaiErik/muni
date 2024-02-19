@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -17,6 +16,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findAllByAccount_Id(Long accountId);
     List<Transaction> findAllByAccount_IdOrderByBookingDateDesc(Long accountId);
     List<Transaction> findAllByCategoriesContains(Category category);
-    List<Transaction> findAllByAccount_IdAndBookingDateAfter(Long accountId, LocalDate date);
+    List<Transaction> findAllByAccount_IdAndBookingDateAfterAndBookingDateBefore(Long accountId, LocalDate fromDate,
+                                                                                 LocalDate toDate);
     boolean existsTransactionByExternalId(String externalId);
 }

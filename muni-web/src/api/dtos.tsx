@@ -65,6 +65,5 @@ export type StatsDto = {
 export type AccountFullInfoDto = {
     account: AccountDto;
     categories: CategoryDto[];
-    stats: StatsDto;
     transactions: TransactionDto[];
 };

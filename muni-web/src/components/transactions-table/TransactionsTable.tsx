@@ -1,9 +1,6 @@
-import { Card, Checkbox, FormControlLabel, IconButton, Paper, Popover, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Tooltip } from "@mui/material";
-import { CategoryDto, TransactionCategoryDto, TransactionDto } from "../../api/dtos"
-import React, { useState } from "react";
-import AddIcon from '@mui/icons-material/Add';
-import { useEditTransactionCategories } from "../../api/bank-account-data-api";
-import { CheckBox } from "@mui/icons-material";
+import { Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from "@mui/material";
+import React from "react";
+import { CategoryDto, TransactionDto } from "../../api/dtos";
 import TransactionCategories from "../transaction-categories/TransactionCategories";
 
 type Props = {

@@ -1,8 +1,7 @@
-import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import styles from "./Navbar.module.css"
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

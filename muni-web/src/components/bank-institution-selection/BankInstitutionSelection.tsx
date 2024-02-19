@@ -1,8 +1,7 @@
-import { Avatar, List, ListItemButton, ListItemAvatar, ListItemText, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Avatar, List, ListItemAvatar, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { useCountryInstitutions, useCreateRequisition } from "../../api/bank-account-data-api";
 import { InstitutionDto } from "../../api/dtos";
-import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, WEB_HOME_URL, WEB_SAVE_CUSTOMER_URL } from "../../utils/constants";
+import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME, WEB_HOME_URL } from "../../utils/constants";
 
 const BankInstitutionSelection = () => {
     const { data: institutions } = useCountryInstitutions('RO');

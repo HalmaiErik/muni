@@ -13,7 +13,5 @@ public class AccountFullInfoDto {
 
     private List<CategoryDto> categories;
 
-    private StatsDto stats;
-
     private List<TransactionDto> transactions;
 }

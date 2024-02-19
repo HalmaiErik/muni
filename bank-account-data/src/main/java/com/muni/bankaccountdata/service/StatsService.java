@@ -32,16 +32,12 @@ public class StatsService {
         this.accountValidator = accountValidator;
     }
 
-    public StatsDto getAccountMonthStats(String token, String accountExternalId, int year, int month) {
+    public StatsDto getAccountStatsBetweenDates(String token, String accountExternalId, LocalDate from, LocalDate to) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
-        return getAccountMonthStats(account.getId(), year, month);
-    }
-
-    public StatsDto getAccountMonthStats(Long accountId, int year, int month) {
-        List<Transaction> monthTransactions = transactionRepository.findAllByAccount_IdAndBookingDateAfter(accountId,
-                LocalDate.of(year, month, 1));
+        List<Transaction> monthTransactions = transactionRepository
+                .findAllByAccount_IdAndBookingDateAfterAndBookingDateBefore(account.getId(), from, to.plusDays(1));
         double inAmount = 0;
         double outAmount = 0;
         double nonCategorizedAmount = 0;

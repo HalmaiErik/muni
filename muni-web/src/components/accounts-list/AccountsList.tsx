@@ -1,7 +1,7 @@
-import { Button, Card, CardActionArea, CardContent, CardMedia, Chip, Grid, Paper, Stack, Typography } from "@mui/material";
-import { AccountDto } from "../../api/dtos";
-import styles from "./AccountsList.module.css"
+import AddIcon from '@mui/icons-material/Add';
+import { Button, Card, CardContent, CardMedia, Chip, IconButton, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { AccountDto } from "../../api/dtos";
 import { formatToUsd } from "../../utils/currencyFormatUtils";
 
 type Props = {
@@ -17,9 +17,17 @@ const AccountsList = ({ accounts }: Props) => {
 
     return (
         <div>
-            {accounts.map((account, index) =>
-                <div key={index} className={styles.container}>
-                    <Card>
+            <div style={{ display: 'flex' }}>
+                <Typography sx={{ flexGrow: 1 }} variant="h2">Connected accounts</Typography>
+
+                <IconButton size="large">
+                    <AddIcon fontSize="inherit" />
+                </IconButton>
+            </div>
+
+            {
+                accounts.map((account, index) =>
+                    <Card sx={{ marginTop: '32px' }} key={index}>
                         <CardContent
                             sx={{
                                 display: 'flex',
@@ -61,8 +69,7 @@ const AccountsList = ({ accounts }: Props) => {
                             </Button>
                         </CardContent>
                     </Card>
-                </div>
-            )
+                )
             }
         </div >
     );
