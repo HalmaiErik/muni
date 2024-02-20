@@ -1,26 +1,35 @@
 import AddIcon from '@mui/icons-material/Add';
 import { Button, Card, CardContent, CardMedia, Chip, IconButton, Stack, Typography } from "@mui/material";
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AccountDto } from "../../api/dtos";
 import { formatToUsd } from "../../utils/currencyFormatUtils";
+import BankInstitutionSelection from '../bank-institution-selection/BankInstitutionSelection';
 
 type Props = {
     accounts: AccountDto[];
 };
 
 const AccountsList = ({ accounts }: Props) => {
+    const [wantToAdd, setWantToAdd] = useState(false);
     const navigate = useNavigate();
 
     const onSelectAccount = (accountExternalId: string) => {
         navigate(`/${accountExternalId}`);
     };
 
+    if (wantToAdd) {
+        return (
+            <BankInstitutionSelection onClose={() => setWantToAdd(false)} />
+        );
+    }
+
     return (
         <div>
             <div style={{ display: 'flex' }}>
-                <Typography sx={{ flexGrow: 1 }} variant="h2">Connected accounts</Typography>
+                <Typography sx={{ flexGrow: 1, marginBottom: '12px' }} variant="h3">Connected accounts</Typography>
 
-                <IconButton size="large">
+                <IconButton size="large" onClick={() => setWantToAdd(true)}>
                     <AddIcon fontSize="inherit" />
                 </IconButton>
             </div>
@@ -47,7 +56,9 @@ const AccountsList = ({ accounts }: Props) => {
 
                             <Stack sx={{ flexGrow: 1 }} spacing={0.2}>
                                 <Stack direction="row" spacing={1.5}>
-                                    <Typography variant="h3">{account.name}</Typography>
+                                    <Typography variant="h3">
+                                        {account.name !== null ? account.name : `${account.institutionName} account`}
+                                    </Typography>
                                     <Chip sx={{ alignSelf: 'center' }} label={account.status} color={account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
                                 </Stack>
                                 <Typography variant="subtitle1">{account.iban}</Typography>

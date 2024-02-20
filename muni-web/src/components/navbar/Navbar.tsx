@@ -26,17 +26,12 @@ const Navbar = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography
-          sx={{
-            flexGrow: 1,
-            fontFamily: 'monospace',
-            fontWeight: 700,
-            letterSpacing: '.3rem'
-          }}
-          variant="h6"
-          component="div">
-          Muni
-        </Typography>
+        <div style={{ flexGrow: 1 }}>
+          <Typography sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: '.3rem' }} variant="h5" component="div">
+            Muni
+          </Typography>
+
+        </div>
         {currentUser && (
           <div>
             <IconButton

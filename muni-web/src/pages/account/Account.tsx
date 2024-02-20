@@ -3,7 +3,7 @@ import { Card, CardContent, CardMedia, Chip, IconButton, LinearProgress, Stack, 
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from "react-router-dom";
 import { useAccountFullInfo, useGetAccountStats, useRefreshAccountInfo } from "../../api/bank-account-data-api";
 import CategoryList from "../../components/category-list/CategoryList";
@@ -23,6 +23,12 @@ const Account = () => {
     const { data: accountInfo, isLoading: accountInfoLoading, isRefetching: accountInfoRefetching } = useAccountFullInfo(currentUser, accountExternalId);
     const { data: stats, isLoading: statsLoading, isRefetching: statsRefetching } = useGetAccountStats(currentUser, { from: fromDate.toDate(), to: toDate.toDate() }, accountExternalId);
     const { mutate: refreshAccountInfo, isLoading: isRefreshing } = useRefreshAccountInfo();
+
+    useEffect(() => {
+        if (accountInfo?.transactions.length === 0) {
+            refreshInfo();
+        }
+    }, [accountInfo])
 
     const refreshInfo = () => {
         if (accountExternalId) {
@@ -73,7 +79,7 @@ const Account = () => {
 
                                 <Stack sx={{ flexGrow: 1 }} spacing={0.1}>
                                     <Stack direction="row" spacing={1.5}>
-                                        <Typography variant="h2">{accountInfo.account.name}</Typography>
+                                        <Typography variant="h2">{accountInfo.account.name !== null ? accountInfo.account.name : `${accountInfo.account.institutionName} account`}</Typography>
                                         <Chip sx={{ alignSelf: 'center' }} label={accountInfo.account.status} color={accountInfo.account.status === 'ACTIVE' ? 'success' : 'error'} size="small" />
                                         <Tooltip title="Refresh info">
                                             <IconButton size="large" onClick={refreshInfo}>
@@ -94,7 +100,11 @@ const Account = () => {
 
                     <CategoryList accountExternalId={accountExternalId} categories={accountInfo.categories} />
 
-                    {stats && (
+                    {accountInfo.transactions.length === 0 && (
+                        <Typography sx={{ textAlign: 'center' }} variant='h5' color="#616161">We could not find any transactions...</Typography>
+                    )}
+
+                    {accountInfo.transactions.length !== 0 && stats && (
                         <Card sx={{ marginBottom: '32px' }}>
                             <CardContent>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -122,9 +132,11 @@ const Account = () => {
                         </Card>
                     )}
 
-                    <Card variant="outlined">
-                        <TransactionsTable transactions={accountInfo.transactions} categories={accountInfo.categories} />
-                    </Card>
+                    {accountInfo.transactions.length !== 0 && (
+                        <Card variant="outlined">
+                            <TransactionsTable transactions={accountInfo.transactions} categories={accountInfo.categories} />
+                        </Card>
+                    )}
                 </>
             )}
         </div>

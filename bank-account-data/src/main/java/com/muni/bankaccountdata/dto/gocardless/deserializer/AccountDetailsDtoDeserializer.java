@@ -22,7 +22,12 @@ public class AccountDetailsDtoDeserializer extends JsonDeserializer<AccountDetai
 
         String iban = node.get(IBAN).asText();
         String currency = node.get(CURRENCY).asText();
-        String name = node.get(NAME).asText();
+
+        JsonNode nameNode = node.get(NAME);
+        String name = null;
+        if (nameNode != null) {
+            name = nameNode.asText();
+        }
 
         return AccountDetailsDto.builder()
                 .iban(iban)

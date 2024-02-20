@@ -108,9 +108,10 @@ public class AccountDataService {
 
     public void createCustomer(String token, String requisitionId, String institutionName, String institutionLogo) {
         String email = customerValidator.getEmailFromToken(token);
-        Customer newCustomer = customerRepository.save(Customer.builder()
-                .email(email)
-                .build());
+        Customer customer = customerRepository.findCustomerByEmail(email)
+                .orElseGet(() -> customerRepository.save(Customer.builder()
+                                    .email(email)
+                                    .build()));
 
         List<String> accountExternalIds = getAccountIds(requisitionId);
         List<Account> accountsToSave = new LinkedList<>();
@@ -118,7 +119,7 @@ public class AccountDataService {
             AccountDetailsDto accountDetailsDto = fetchAccountDetails(accountExternalId);
             AccountBalanceDto accountBalanceDto = fetchAccountBalance(accountExternalId);
             Account newAccount = AccountMapper.apiDtoToEntity(accountDetailsDto, accountBalanceDto, accountExternalId,
-                    requisitionId, institutionLogo, institutionName, newCustomer);
+                    requisitionId, institutionLogo, institutionName, customer);
             accountsToSave.add(newAccount);
         }
 
