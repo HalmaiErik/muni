@@ -130,7 +130,7 @@ public class AccountDataService {
         try {
             Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
 
-            List<Account> accounts = accountRepository.findAllByCustomer_Id(customer.getId());
+            List<Account> accounts = accountRepository.findAllByCustomer_IdOrderByInstitutionNameAsc(customer.getId());
 
             return accounts.stream()
                     .map(AccountMapper::entityToInternalDto)

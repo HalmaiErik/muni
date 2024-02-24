@@ -8,6 +8,7 @@ type Props = {
 
 type AuthContextValue = {
     currentUser: User | null;
+    isAuthenticated: boolean;
     signup: (email: string, password: string) => Promise<UserCredential>;
     login: (email: string, password: string) => Promise<UserCredential>;
     logout: () => Promise<void>;
@@ -69,6 +70,7 @@ export const AuthProvider = ({ children }: Props) => {
 
     const value = {
         currentUser,
+        isAuthenticated: !!currentUser,
         signup,
         login,
         logout

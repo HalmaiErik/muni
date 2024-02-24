@@ -1,6 +1,6 @@
 import { Paper } from "@mui/material";
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCreateCustomer, useCustomerAccounts } from "../../api/bank-account-data-api";
 import AccountsList from "../../components/accounts-list/AccountsList";
 import Auth from "../../components/auth/Auth";
@@ -9,11 +9,12 @@ import { useAuth } from "../../contexts/AuthContext";
 import { LOCAL_STORAGE_INSTITUTION_LOGO, LOCAL_STORAGE_INSTITUTION_NAME } from "../../utils/constants";
 
 const Home = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, isAuthenticated } = useAuth();
     const [searchParams] = useSearchParams();
     const requisitionId = searchParams.get("ref");
     const { data: accounts } = useCustomerAccounts(currentUser);
     const { mutate: createCustomer } = useCreateCustomer();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const institutionName = window.localStorage.getItem(LOCAL_STORAGE_INSTITUTION_NAME);
@@ -23,20 +24,19 @@ const Home = () => {
             window.localStorage.removeItem(LOCAL_STORAGE_INSTITUTION_LOGO);
 
             createCustomer({ requisitionId, institutionName, institutionLogo })
+            navigate('/');
         }
     }, []);
 
     return (
         <>
+            {!isAuthenticated && (
+                <Paper sx={{ maxWidth: '512px', margin: 'auto', padding: '32px' }}>
+                    <Auth />
+                </Paper>
+            )}
             {accounts && accounts.length === 0 && (
-                <Paper
-                    sx={{
-                        maxWidth: '512px',
-                        margin: 'auto',
-                        padding: '32px'
-                    }}
-                >
-                    {!currentUser && <Auth />}
+                <Paper sx={{ maxWidth: '512px', margin: 'auto', padding: '32px' }}>
                     {currentUser && <BankInstitutionSelection />}
                 </Paper>
             )}

@@ -15,7 +15,7 @@ const AccountsList = ({ accounts }: Props) => {
     const navigate = useNavigate();
 
     const onSelectAccount = (accountExternalId: string) => {
-        navigate(`/${accountExternalId}`);
+        navigate(`/accounts/${accountExternalId}`);
     };
 
     if (wantToAdd) {
