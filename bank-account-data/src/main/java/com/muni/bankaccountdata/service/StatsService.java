@@ -67,18 +67,18 @@ public class StatsService {
                 .map(category -> CategorySpentAmountDto.builder()
                         .categoryName(category.getName())
                         .categoryColorCode(category.getColorCode())
-                        .spentAmount(-categoryToSpentAmount.get(category))
+                        .spentAmount(Math.abs(categoryToSpentAmount.get(category)))
                         .build())
                 .collect(Collectors.toList());
         categorySpentAmounts.add(CategorySpentAmountDto.builder()
                 .categoryName("Others")
                 .categoryColorCode("rgb(128, 128, 128)")
-                .spentAmount(-nonCategorizedAmount)
+                .spentAmount(Math.abs(nonCategorizedAmount))
                 .build());
 
         return StatsDto.builder()
                 .inAmount(inAmount)
-                .outAmount(-outAmount)
+                .outAmount(Math.abs(outAmount))
                 .categorySpentAmounts(categorySpentAmounts)
                 .build();
     }

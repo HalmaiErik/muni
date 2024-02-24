@@ -2,7 +2,7 @@ import { Paper } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCreateCustomer, useCustomerAccounts } from "../../api/bank-account-data-api";
-import AccountsList from "../../components/accounts-list/AccountsList";
+import AccountsCarousel from "../../components/accounts-carousel/AccountsCarousel";
 import Auth from "../../components/auth/Auth";
 import BankInstitutionSelection from "../../components/bank-institution-selection/BankInstitutionSelection";
 import { useAuth } from "../../contexts/AuthContext";
@@ -42,7 +42,7 @@ const Home = () => {
             )}
             {accounts && accounts.length !== 0 && (
                 <div style={{ maxWidth: '1256px', margin: 'auto' }}>
-                    <AccountsList accounts={accounts} />
+                    <AccountsCarousel accounts={accounts} />
                 </div>
             )}
         </>

@@ -1,12 +1,14 @@
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
+import { AppBar, Button, IconButton, Menu, MenuItem, Toolbar } from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   const logoutClick = async () => {
     setLoading(true);
@@ -27,10 +29,12 @@ const Navbar = () => {
     <AppBar position="static">
       <Toolbar>
         <div style={{ flexGrow: 1 }}>
-          <Typography sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: '.3rem' }} variant="h5" component="div">
+          <Button sx={{
+            fontFamily: 'monospace', fontWeight: 700, fontSize: 20, letterSpacing: '.3rem', "&.MuiButtonBase-root:hover": { bgcolor: "transparent" }
+          }}
+            onClick={() => navigate('/')} color='inherit' >
             Muni
-          </Typography>
-
+          </Button>
         </div>
         {currentUser && (
           <div>

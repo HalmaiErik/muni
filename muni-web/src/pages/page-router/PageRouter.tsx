@@ -1,4 +1,4 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import Account from "../account/Account";
 import Accounts from "../accounts/Accounts";
@@ -13,13 +13,11 @@ const PageRouter = () => {
     };
 
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/accounts" element={<ProtectedPage {...DEFAULT_PROTECTED_PAGE_PROPS} outlet={<Accounts />} />} />
-                <Route path="/accounts/:accountExternalId" element={<ProtectedPage {...DEFAULT_PROTECTED_PAGE_PROPS} outlet={<Account />} />} />
-            </Routes>
-        </Router>
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/accounts" element={<ProtectedPage {...DEFAULT_PROTECTED_PAGE_PROPS} outlet={<Accounts />} />} />
+            <Route path="/accounts/:accountExternalId" element={<ProtectedPage {...DEFAULT_PROTECTED_PAGE_PROPS} outlet={<Account />} />} />
+        </Routes>
     );
 }
 

@@ -2,6 +2,7 @@ import { darkScrollbar } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { BrowserRouter as Router } from 'react-router-dom';
 import styles from './App.module.css';
 import Navbar from './components/navbar/Navbar';
 import { AuthProvider } from './contexts/AuthContext';
@@ -29,10 +30,12 @@ function App() {
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Navbar />
-          <div className={styles.pageContent}>
-            <PageRouter />
-          </div>
+          <Router>
+            <Navbar />
+            <div className={styles.pageContent}>
+              <PageRouter />
+            </div>
+          </Router>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
