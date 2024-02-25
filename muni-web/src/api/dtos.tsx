@@ -28,7 +28,10 @@ export type TransactionCategoryDto = {
 
 export type TransactionDto = {
     externalId: string;
+    institutionName: string;
+    institutionLogo: string;
     refFromInstitution: string;
+    accountIban: string;
     amount: number;
     bookingDate: Date;
     remittanceInfo: string;
@@ -64,6 +67,10 @@ export type StatsDto = {
 
 export type AccountFullInfoDto = {
     account: AccountDto;
-    categories: CategoryDto[];
     transactions: TransactionDto[];
 };
+
+export type CustomerInfo = {
+    accounts: AccountDto[];
+    transactions: TransactionDto[];
+}

@@ -12,7 +12,13 @@ public class TransactionDto {
 
     private String externalId;
 
+    private String institutionName;
+
+    private String institutionLogo;
+
     private String refFromInstitution;
+
+    private String accountIban;
 
     private String debtorName;
 

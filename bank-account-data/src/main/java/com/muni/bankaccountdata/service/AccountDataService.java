@@ -10,10 +10,7 @@ import com.muni.bankaccountdata.db.repository.CustomerRepository;
 import com.muni.bankaccountdata.db.repository.TransactionRepository;
 import com.muni.bankaccountdata.dto.frankfurter.ConversionRateToUsd;
 import com.muni.bankaccountdata.dto.gocardless.*;
-import com.muni.bankaccountdata.dto.internal.AccountDto;
-import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
-import com.muni.bankaccountdata.dto.internal.CategoryDto;
-import com.muni.bankaccountdata.dto.internal.TransactionDto;
+import com.muni.bankaccountdata.dto.internal.*;
 import com.muni.bankaccountdata.dto.shared.AccessTokenCreationDto;
 import com.muni.bankaccountdata.dto.shared.AccessTokenRefreshDto;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
@@ -50,8 +47,6 @@ public class AccountDataService {
 
     private final GoCardlessApi goCardlessApi;
     private final FrankfurterApi frankfurterApi;
-    private final CategoryService categoryService;
-    private final StatsService statsService;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -59,14 +54,12 @@ public class AccountDataService {
     private final AccountValidator accountValidator;
     private AccessToken accessToken;
 
-    public AccountDataService(GoCardlessApi goCardlessApi, FrankfurterApi frankfurterApi, CategoryService categoryService,
-                              StatsService statsService, CustomerRepository customerRepository, AccountRepository accountRepository,
+    public AccountDataService(GoCardlessApi goCardlessApi, FrankfurterApi frankfurterApi,
+                              CustomerRepository customerRepository, AccountRepository accountRepository,
                               TransactionRepository transactionRepository, CustomerValidator customerValidator,
                               AccountValidator accountValidator) {
         this.goCardlessApi = goCardlessApi;
         this.frankfurterApi = frankfurterApi;
-        this.categoryService = categoryService;
-        this.statsService = statsService;
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
@@ -130,21 +123,43 @@ public class AccountDataService {
         try {
             Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
 
-            List<Account> accounts = accountRepository.findAllByCustomer_IdOrderByInstitutionNameAsc(customer.getId());
-
-            return accounts.stream()
-                    .map(AccountMapper::entityToInternalDto)
-                    .collect(Collectors.toList());
+            return getCustomerAccounts(customer);
         } catch (ApiException e) {
             return new ArrayList<>();
         }
+    }
+
+    public CustomerInfoDto getCustomerInfo(String token) {
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+
+        List<AccountDto> accountDtos = getCustomerAccounts(customer);
+
+        List<Transaction> transactions = transactionRepository.findAllByCustomer_IdOrderByBookingDateDesc(customer.getId());
+        List<TransactionDto> transactionDtos = transactions.stream()
+                .map(TransactionMapper::entityToInternalDto)
+                .toList();
+
+        return CustomerInfoDto.builder()
+                .accounts(accountDtos)
+                .transactions(transactionDtos)
+                .build();
     }
 
     public AccountFullInfoDto getAccountFullInfo(String token, String accountExternalId) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
-        return getAccountFullInfo(customer, account);
+        AccountDto accountDto = AccountMapper.entityToInternalDto(account);
+
+        List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
+        List<TransactionDto> transactionDtos = transactions.stream()
+                .map(TransactionMapper::entityToInternalDto)
+                .toList();
+
+        return AccountFullInfoDto.builder()
+                .account(accountDto)
+                .transactions(transactionDtos)
+                .build();
     }
 
     public void refreshAccountInfo(String token, String accountExternalId) {
@@ -161,23 +176,6 @@ public class AccountDataService {
         } catch (InterruptedException e) {
             throw new ApiException(e.getMessage());
         }
-    }
-
-    private AccountFullInfoDto getAccountFullInfo(Customer customer, Account account) {
-        AccountDto accountDto = AccountMapper.entityToInternalDto(account);
-
-        List<CategoryDto> categories = categoryService.getCustomerCategories(customer);
-
-        List<Transaction> transactions = transactionRepository.findAllByAccount_IdOrderByBookingDateDesc(account.getId());
-        List<TransactionDto> transactionDtos = transactions.stream()
-                .map(TransactionMapper::entityToInternalDto)
-                .toList();
-
-        return AccountFullInfoDto.builder()
-                .account(accountDto)
-                .categories(categories)
-                .transactions(transactionDtos)
-                .build();
     }
 
     public void accessToken() {
@@ -202,6 +200,14 @@ public class AccountDataService {
         validateResponse(response, exceptionMessage);
 
         return response.getBody();
+    }
+
+    private List<AccountDto> getCustomerAccounts(Customer customer) {
+        List<Account> accounts = accountRepository.findAllByCustomer_IdOrderByInstitutionNameAsc(customer.getId());
+
+        return accounts.stream()
+                .map(AccountMapper::entityToInternalDto)
+                .collect(Collectors.toList());
     }
 
     private void refreshAccountTransactions(Customer customer, Account account) {

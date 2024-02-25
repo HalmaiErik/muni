@@ -30,9 +30,14 @@ public class TransactionMapper {
     }
 
     public static TransactionDto entityToInternalDto(Transaction transaction) {
+        Account account = transaction.getAccount();
+
         return TransactionDto.builder()
                 .externalId(transaction.getExternalId())
+                .institutionName(account.getInstitutionName())
+                .institutionLogo(account.getInstitutionLogo())
                 .refFromInstitution(transaction.getRefFromInstitution())
+                .accountIban(account.getIban())
                 .amount(transaction.getAmount())
                 .bookingDate(transaction.getBookingDate())
                 .remittanceInfo(transaction.getRemittanceInfo())

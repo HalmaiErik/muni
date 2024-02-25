@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    List<Category> getAllByCustomer_Id(Long id);
+    List<Category> getAllByCustomer_IdOrderByNameDesc(Long id);
     Optional<Category> findCategoryByIdAndCustomer_Id(Long categoryId, Long customerId);
 }

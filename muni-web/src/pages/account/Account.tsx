@@ -5,7 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useParams } from "react-router-dom";
-import { useAccountFullInfo, useGetAccountStats, useRefreshAccountInfo } from "../../api/bank-account-data-api";
+import { useAccountFullInfo, useAccountStats, useCustomerCategories, useRefreshAccountInfo } from "../../api/bank-account-data-api";
 import CategoryList from "../../components/category-list/CategoryList";
 import ChartList from "../../components/chart-list/ChartList";
 import TransactionsTable from "../../components/transactions-table/TransactionsTable";
@@ -21,7 +21,8 @@ const Account = () => {
     const { accountExternalId } = useParams();
     const { currentUser } = useAuth();
     const { data: accountInfo, isLoading: accountInfoLoading, isRefetching: accountInfoRefetching } = useAccountFullInfo(currentUser, accountExternalId);
-    const { data: stats, isLoading: statsLoading, isRefetching: statsRefetching } = useGetAccountStats(currentUser, { from: fromDate.toDate(), to: toDate.toDate() }, accountExternalId);
+    const { data: categories, isLoading: categoriesLoading, isRefetching: categoriesRefetching } = useCustomerCategories(currentUser);
+    const { data: stats, isLoading: statsLoading, isRefetching: statsRefetching } = useAccountStats(currentUser, { from: fromDate.toDate(), to: toDate.toDate() }, accountExternalId);
     const { mutate: refreshAccountInfo, isLoading: isRefreshing } = useRefreshAccountInfo();
 
     useEffect(() => {
@@ -38,6 +39,7 @@ const Account = () => {
 
     if (accountInfoLoading || accountInfoRefetching
         || statsLoading || statsRefetching
+        || categoriesLoading || categoriesRefetching
         || isRefreshing) {
         return (
             <div style={{ maxWidth: 1256, margin: 'auto' }}>
@@ -59,7 +61,7 @@ const Account = () => {
     };
 
     return (
-        <div style={{ maxWidth: 1256, margin: 'auto', padding: '32px' }}>
+        <div style={{ maxWidth: 1256, margin: 'auto' }}>
             {accountInfo && (
                 <>
                     <Card sx={{ marginBottom: '32px' }} variant="elevation">
@@ -98,7 +100,7 @@ const Account = () => {
                         </CardContent>
                     </Card>
 
-                    <CategoryList accountExternalId={accountExternalId} categories={accountInfo.categories} />
+                    {categories && <CategoryList accountExternalId={accountExternalId} categories={categories} />}
 
                     {accountInfo.transactions.length === 0 && (
                         <Typography sx={{ textAlign: 'center' }} variant='h5' color="#616161">We could not find any transactions...</Typography>
@@ -132,9 +134,9 @@ const Account = () => {
                         </Card>
                     )}
 
-                    {accountInfo.transactions.length !== 0 && (
+                    {accountInfo.transactions.length !== 0 && categories && (
                         <Card variant="outlined">
-                            <TransactionsTable transactions={accountInfo.transactions} categories={accountInfo.categories} />
+                            <TransactionsTable transactions={accountInfo.transactions} categories={categories} />
                         </Card>
                     )}
                 </>

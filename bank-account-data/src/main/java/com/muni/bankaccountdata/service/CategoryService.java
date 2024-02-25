@@ -78,19 +78,7 @@ public class CategoryService {
         try {
             Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
 
-            List<Category> categories = categoryRepository.getAllByCustomer_Id(customer.getId());
-
-            return categories.stream()
-                    .map(CategoryMapper::entityToDto)
-                    .collect(Collectors.toList());
-        } catch (ApiException e) {
-            return new ArrayList<>();
-        }
-    }
-
-    public List<CategoryDto> getCustomerCategories(Customer customer) {
-        try {
-            List<Category> categories = categoryRepository.getAllByCustomer_Id(customer.getId());
+            List<Category> categories = categoryRepository.getAllByCustomer_IdOrderByNameDesc(customer.getId());
 
             return categories.stream()
                     .map(CategoryMapper::entityToDto)

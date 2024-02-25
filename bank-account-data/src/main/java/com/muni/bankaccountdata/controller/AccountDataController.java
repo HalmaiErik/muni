@@ -1,9 +1,6 @@
 package com.muni.bankaccountdata.controller;
 
-import com.muni.bankaccountdata.dto.internal.AccountDto;
-import com.muni.bankaccountdata.dto.internal.AccountFullInfoDto;
-import com.muni.bankaccountdata.dto.internal.CategoryDto;
-import com.muni.bankaccountdata.dto.internal.StatsDto;
+import com.muni.bankaccountdata.dto.internal.*;
 import com.muni.bankaccountdata.dto.shared.InstitutionDto;
 import com.muni.bankaccountdata.dto.shared.RequisitionDto;
 import com.muni.bankaccountdata.request.*;
@@ -49,9 +46,14 @@ public class AccountDataController {
     }
 
     @GetMapping("/accounts")
-    public ResponseEntity<List<AccountDto>> getCustomerAccounts(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<AccountDto>> customerAccounts(@RequestHeader("Authorization") String token) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(accountDataService.getCustomerAccounts(token.substring(BEARER_PREFIX_LENGTH)));
+    }
+
+    @GetMapping("/customer")
+    public CustomerInfoDto customerInfo(@RequestHeader("Authorization") String token) {
+        return accountDataService.getCustomerInfo(token.substring(BEARER_PREFIX_LENGTH));
     }
 
     @GetMapping("/account/{accountExternalId}")
@@ -67,10 +69,17 @@ public class AccountDataController {
         accountDataService.refreshAccountInfo(token.substring(BEARER_PREFIX_LENGTH), accountExternalId);
     }
 
+    @PostMapping("/stats/customer")
+    public ResponseEntity<StatsDto> customerStats(@RequestHeader("Authorization") String token,
+                                                  @RequestBody GetStatsRequest request) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(statsService.getCustomerStats(token.substring(BEARER_PREFIX_LENGTH), request.getFrom(), request.getTo()));
+    }
+
     @PostMapping("/stats/account/{accountExternalId}")
-    public ResponseEntity<StatsDto> getAccountStats(@RequestHeader("Authorization") String token,
-                                                    @PathVariable String accountExternalId,
-                                                    @RequestBody GetStatsRequest request) {
+    public ResponseEntity<StatsDto> accountStats(@RequestHeader("Authorization") String token,
+                                                 @PathVariable String accountExternalId,
+                                                 @RequestBody GetStatsRequest request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(statsService.getAccountStatsBetweenDates(token.substring(BEARER_PREFIX_LENGTH), accountExternalId,
                         request.getFrom(), request.getTo()));
@@ -89,7 +98,7 @@ public class AccountDataController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<CategoryDto>> getCustomerCategories(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<CategoryDto>> customerCategories(@RequestHeader("Authorization") String token) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(categoryService.getCustomerCategories(token.substring(BEARER_PREFIX_LENGTH)));
     }

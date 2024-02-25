@@ -7,9 +7,9 @@ import java.util.List;
 
 @Data
 @Builder
-public class AccountFullInfoDto {
+public class CustomerInfoDto {
 
-    private AccountDto account;
+    private List<AccountDto> accounts;
 
     private List<TransactionDto> transactions;
 }

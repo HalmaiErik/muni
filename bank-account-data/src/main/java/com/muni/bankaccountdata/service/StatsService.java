@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 @Service
 public class StatsService {
 
+    public static final String OTHERS = "Others";
+    public static final String GRAY_COLOR_CODE = "rgb(128, 128, 128)";
+
     private final TransactionRepository transactionRepository;
     private final CustomerValidator customerValidator;
     private final AccountValidator accountValidator;
@@ -32,17 +35,31 @@ public class StatsService {
         this.accountValidator = accountValidator;
     }
 
+    public StatsDto getCustomerStats(String token, LocalDate from, LocalDate to) {
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+
+        List<Transaction> transactions = transactionRepository
+                .findAllByCustomer_IdAndBookingDateAfterAndBookingDateBefore(customer.getId(), from, to.plusDays(1));
+
+        return calculateTransactionsStats(transactions);
+    }
+
     public StatsDto getAccountStatsBetweenDates(String token, String accountExternalId, LocalDate from, LocalDate to) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
-        List<Transaction> monthTransactions = transactionRepository
+        List<Transaction> transactions = transactionRepository
                 .findAllByAccount_IdAndBookingDateAfterAndBookingDateBefore(account.getId(), from, to.plusDays(1));
+
+        return calculateTransactionsStats(transactions);
+    }
+
+    private StatsDto calculateTransactionsStats(List<Transaction> transactions) {
         double inAmount = 0;
         double outAmount = 0;
         double nonCategorizedAmount = 0;
         Map<Category, Double> categoryToSpentAmount = new HashMap<>();
-        for (Transaction transaction : monthTransactions) {
+        for (Transaction transaction : transactions) {
             double amount = transaction.getAmount();
 
             if (amount > 0) {
@@ -71,8 +88,8 @@ public class StatsService {
                         .build())
                 .collect(Collectors.toList());
         categorySpentAmounts.add(CategorySpentAmountDto.builder()
-                .categoryName("Others")
-                .categoryColorCode("rgb(128, 128, 128)")
+                .categoryName(OTHERS)
+                .categoryColorCode(GRAY_COLOR_CODE)
                 .spentAmount(Math.abs(nonCategorizedAmount))
                 .build());
 

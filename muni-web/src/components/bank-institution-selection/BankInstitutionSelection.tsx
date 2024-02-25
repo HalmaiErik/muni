@@ -25,7 +25,7 @@ const BankInstitutionSelection = ({ onClose }: Props) => {
     return institutions ?
         <>
             <div style={{ display: 'flex' }}>
-                <Typography sx={{ flexGrow: 1 }} variant="h6" component="div" textAlign={'center'} marginBottom={2}>Select a bank institution</Typography >
+                <Typography sx={{ flexGrow: 1 }} variant="h4" component="div" textAlign={'center'} marginBottom={2}>Select a bank institution</Typography >
                 {onClose && (
                     <IconButton size="large" onClick={onClose}>
                         <CloseIcon fontSize="inherit" />

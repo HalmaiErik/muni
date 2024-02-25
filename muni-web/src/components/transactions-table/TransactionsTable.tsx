@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, Tooltip } from "@mui/material";
 import React from "react";
 import { CategoryDto, TransactionDto } from "../../api/dtos";
 import TransactionCategories from "../transaction-categories/TransactionCategories";
@@ -22,11 +22,13 @@ const TransactionsTable = ({ transactions, categories }: Props) => {
     };
 
     return (
-        <TableContainer sx={{ maxWidth: 1256, maxHeight: 512, overflow: 'auto', scrollbarWidth: 'thin' }}>
+        <TableContainer sx={{ maxWidth: 1256, maxHeight: 512, overflowY: 'auto', scrollbarWidth: 'thin' }}>
             <Table stickyHeader>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Reference from institution</TableCell>
+                        <TableCell align="justify">Institution</TableCell>
+                        <TableCell align="justify">Reference from institution</TableCell>
+                        <TableCell align="justify">Account IBAN</TableCell>
                         <TableCell align="justify">Amount&nbsp;($)</TableCell>
                         <TableCell align="justify">Booking date</TableCell>
                         <TableCell align="justify">Information</TableCell>
@@ -37,7 +39,13 @@ const TransactionsTable = ({ transactions, categories }: Props) => {
                     {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((transaction, index) => (
                             <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                <TableCell component="th" scope="row">{transaction.refFromInstitution}</TableCell>
+                                <TableCell scope="row" component="th">
+                                    <Tooltip key={transaction.externalId} title={transaction.institutionName}>
+                                        <img src={transaction.institutionLogo} height='40px' width='40px' />
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell align="justify" component="th">{transaction.refFromInstitution}</TableCell>
+                                <TableCell align="justify">{transaction.accountIban}</TableCell>
                                 <TableCell align="justify">{transaction.amount}</TableCell>
                                 <TableCell align="justify">{transaction.bookingDate.toString()}</TableCell>
                                 <TableCell align="justify">{transaction.remittanceInfo || 'None'}</TableCell>
