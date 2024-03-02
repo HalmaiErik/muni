@@ -80,6 +80,44 @@ const useCustomerAccounts = (currentUser: User | null) => {
     );
 };
 
+const useCustomerInfo = (currentUser: User | null) => {
+    return useQuery(
+        ['info'],
+        async () => {
+            const response = await fetch(baseUrl + '/customer', {
+                method: 'get',
+                headers: new Headers({
+                    'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+                    'Content-Type': 'application/json'
+                }),
+            });
+            const data: CustomerInfo = await response.json();
+            return data;
+        },
+        { enabled: !!currentUser, refetchOnWindowFocus: false }
+    );
+};
+
+const useRefreshCustomerInfo = (currentUser: User | null) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async () => {
+            await fetch(baseUrl + `/customer/refresh`, {
+                method: 'post',
+                headers: new Headers({
+                    'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
+                    'Content-Type': 'application/json'
+                }),
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['info'] });
+            queryClient.invalidateQueries({ queryKey: ['stats'] });
+        }
+    });
+};
+
 const useAccountFullInfo = (currentUser: User | null, accountExternalId?: string) => {
     return useQuery(
         ['info'],
@@ -116,24 +154,6 @@ const useRefreshAccountInfo = () => {
             queryClient.invalidateQueries({ queryKey: ['stats'] });
         }
     });
-};
-
-const useCustomerInfo = (currentUser: User | null) => {
-    return useQuery(
-        ['info'],
-        async () => {
-            const response = await fetch(baseUrl + '/customer', {
-                method: 'get',
-                headers: new Headers({
-                    'Authorization': `Bearer ${window.localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY)}`,
-                    'Content-Type': 'application/json'
-                }),
-            });
-            const data: CustomerInfo = await response.json();
-            return data;
-        },
-        { enabled: !!currentUser, refetchOnWindowFocus: false }
-    );
 };
 
 const useCustomerStats = (currentUser: User | null, request: GetStatsRequest) => {
@@ -278,6 +298,7 @@ const useCategorizeAccountTransactions = () => {
 export {
     useAccountFullInfo, useAccountStats, useCategorizeAccountTransactions, useCountryInstitutions,
     useCreateCategory, useCreateCustomer, useCreateRequisition, useCustomerAccounts, useCustomerCategories,
-    useCustomerInfo, useCustomerStats, useDeleteCategory, useEditTransactionCategories, useRefreshAccountInfo
+    useCustomerInfo, useCustomerStats, useDeleteCategory, useEditTransactionCategories, useRefreshAccountInfo,
+    useRefreshCustomerInfo
 };
 

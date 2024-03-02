@@ -22,7 +22,7 @@ const TransactionsTable = ({ transactions, categories }: Props) => {
     };
 
     return (
-        <TableContainer sx={{ maxWidth: 1256, maxHeight: 512, overflowY: 'auto', scrollbarWidth: 'thin' }}>
+        <TableContainer sx={{ maxWidth: 1256, maxHeight: 640, overflowY: 'auto', scrollbarWidth: 'thin' }}>
             <Table stickyHeader>
                 <TableHead>
                     <TableRow>

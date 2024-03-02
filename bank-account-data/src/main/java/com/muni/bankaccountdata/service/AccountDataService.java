@@ -145,6 +145,23 @@ public class AccountDataService {
                 .build();
     }
 
+    public void refreshCustomerInfo(String token) {
+        Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
+        List<Account> accounts = accountRepository.findAllByCustomer_Id(customer.getId());
+
+        try {
+            ExecutorService executorService = Executors.newFixedThreadPool(4);
+            for (Account account : accounts) {
+                executorService.execute(() -> refreshAccountInfo(customer, account));
+            }
+
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            throw new ApiException(e.getMessage());
+        }
+    }
+
     public AccountFullInfoDto getAccountFullInfo(String token, String accountExternalId) {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
@@ -166,6 +183,14 @@ public class AccountDataService {
         Customer customer = customerValidator.validateAndGetRequiredCustomer(token);
         Account account = accountValidator.getRequiredCustomerAccount(customer, accountExternalId);
 
+        refreshAccountInfo(customer, account);
+    }
+
+    public void accessToken() {
+        System.out.println(accessToken.getAccessToken());
+    }
+
+    private void refreshAccountInfo(Customer customer, Account account) {
         try {
             ExecutorService executorService = Executors.newFixedThreadPool(2);
             executorService.execute(() -> refreshAccountTransactions(customer, account));
@@ -176,10 +201,6 @@ public class AccountDataService {
         } catch (InterruptedException e) {
             throw new ApiException(e.getMessage());
         }
-    }
-
-    public void accessToken() {
-        System.out.println(accessToken.getAccessToken());
     }
 
     private List<String> getAccountIds(String requisitionId) {

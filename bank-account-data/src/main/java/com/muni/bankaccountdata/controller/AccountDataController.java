@@ -52,8 +52,14 @@ public class AccountDataController {
     }
 
     @GetMapping("/customer")
-    public CustomerInfoDto customerInfo(@RequestHeader("Authorization") String token) {
-        return accountDataService.getCustomerInfo(token.substring(BEARER_PREFIX_LENGTH));
+    public ResponseEntity<CustomerInfoDto> customerInfo(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(accountDataService.getCustomerInfo(token.substring(BEARER_PREFIX_LENGTH)));
+    }
+
+    @PostMapping("/customer/refresh")
+    public void refreshCustomerInfo(@RequestHeader("Authorization") String token) {
+        accountDataService.refreshCustomerInfo(token.substring(BEARER_PREFIX_LENGTH));
     }
 
     @GetMapping("/account/{accountExternalId}")

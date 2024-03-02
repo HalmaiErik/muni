@@ -1,3 +1,4 @@
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { AppBar, Button, IconButton, Menu, MenuItem, Toolbar } from "@mui/material";
 import { useState } from "react";
@@ -27,7 +28,7 @@ const Navbar = () => {
 
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ alignItems: 'center' }}>
         <div style={{ flexGrow: 1 }}>
           <Button sx={{
             fontFamily: 'monospace', fontWeight: 700, fontSize: 20, letterSpacing: '.3rem', "&.MuiButtonBase-root:hover": { bgcolor: "transparent" }
@@ -35,6 +36,7 @@ const Navbar = () => {
             onClick={() => navigate('/')} color='inherit' >
             Muni
           </Button>
+          <Button sx={{ marginLeft: '24px' }} startIcon={<AccountBalanceWalletIcon />} color='inherit' onClick={() => navigate('/accounts')}>Accounts</Button>
         </div>
         {currentUser && (
           <div>

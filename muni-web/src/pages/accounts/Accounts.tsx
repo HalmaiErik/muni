@@ -1,5 +1,5 @@
 import AddIcon from '@mui/icons-material/Add';
-import { IconButton, Typography } from "@mui/material";
+import { IconButton, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
 import { useCustomerAccounts } from "../../api/bank-account-data-api";
 import AccountsList from "../../components/accounts-list/AccountsList";
@@ -19,9 +19,11 @@ const Accounts = () => {
                     <div style={{ display: 'flex' }}>
                         <Typography sx={{ flexGrow: 1, marginBottom: '12px' }} variant="h3">Accounts</Typography>
 
-                        <IconButton size="large" onClick={() => setWantToAdd(true)}>
-                            <AddIcon fontSize="inherit" />
-                        </IconButton>
+                        <Tooltip title="Connect new account">
+                            <IconButton size="large" onClick={() => setWantToAdd(true)}>
+                                <AddIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
                     </div>
                     {accounts && <AccountsList accounts={accounts} />}
                 </>

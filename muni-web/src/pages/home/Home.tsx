@@ -1,11 +1,12 @@
 import AddIcon from '@mui/icons-material/Add';
-import { Card, CardContent, IconButton, LinearProgress, Paper, Typography } from "@mui/material";
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Card, CardContent, IconButton, LinearProgress, Paper, Tooltip, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useCreateCustomer, useCustomerCategories, useCustomerInfo, useCustomerStats } from "../../api/bank-account-data-api";
+import { useCreateCustomer, useCustomerCategories, useCustomerInfo, useCustomerStats, useRefreshCustomerInfo } from "../../api/bank-account-data-api";
 import AccountsCarousel from "../../components/accounts-carousel/AccountsCarousel";
 import Auth from "../../components/auth/Auth";
 import BankInstitutionSelection from "../../components/bank-institution-selection/BankInstitutionSelection";
@@ -29,6 +30,7 @@ const Home = () => {
     const { data: categories, isLoading: categoriesLoading, isRefetching: categoriesRefetching } = useCustomerCategories(currentUser);
     const { data: stats, isLoading: statsLoading, isRefetching: statsRefetching } = useCustomerStats(currentUser, { from: fromDate.toDate(), to: toDate.toDate() });
     const { mutate: createCustomer } = useCreateCustomer();
+    const { mutate: refreshCustomerInfo, isLoading: isRefreshing } = useRefreshCustomerInfo(currentUser);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,7 +59,8 @@ const Home = () => {
 
     if (customerInfoLoading || customerInfoRefetching
         || categoriesLoading || categoriesRefetching
-        || statsLoading || statsRefetching) {
+        || statsLoading || statsRefetching
+        || isRefreshing) {
         return (
             <div style={{ maxWidth: 1256, margin: 'auto' }}>
                 <LinearProgress />
@@ -90,11 +93,19 @@ const Home = () => {
                     <div style={{ display: 'flex', marginBottom: '8px' }}>
                         <Typography sx={{ flexGrow: 1 }} variant="h3">Accounts</Typography>
 
-                        <IconButton size="large" onClick={() => setWantToAdd(true)}>
-                            <AddIcon fontSize="inherit" />
-                        </IconButton>
+                        <Tooltip title="Refresh info">
+                            <IconButton size="large" onClick={() => refreshCustomerInfo()}>
+                                <RefreshIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Connect new account">
+                            <IconButton size="large" onClick={() => setWantToAdd(true)}>
+                                <AddIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
                     </div>
-                    <div style={{ marginBottom: '32px', outlineStyle: 'solid', outlineWidth: '2px', outlineColor: '#1E1E1E' }}>
+                    <div style={{ marginBottom: '32px', backgroundColor: '#1E1E1E' }}>
                         <AccountsCarousel accounts={customerInfo.accounts} />
                     </div>
 
