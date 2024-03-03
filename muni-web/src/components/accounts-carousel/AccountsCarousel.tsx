@@ -11,10 +11,10 @@ const AccountsCarousel = ({ accounts }: Props) => {
     const navigate = useNavigate();
 
     return (
-        <Tabs variant="scrollable" scrollButtons value={false}>
+        <Tabs variant="scrollable" scrollButtons allowScrollButtonsMobile centered value={false}>
             {accounts.map(account => (
                 <Tab key={account.externalId} onClick={() => navigate(`/accounts/${account.externalId}`)} label={
-                    <Card sx={{ minHeight: '256px', display: 'flex', alignItems: 'center' }} variant="outlined">
+                    <Card sx={{ minHeight: '256px', minWidth: '256px', display: 'flex', alignItems: 'center' }} variant="outlined">
                         <CardContent>
                             <CardMedia
                                 sx={{ height: 50, width: 50, margin: 'auto', marginBottom: '8px' }}

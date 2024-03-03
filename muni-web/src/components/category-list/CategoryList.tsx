@@ -45,7 +45,7 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
 
     return (
         <>
-            <div style={{ display: 'flex', marginBottom: '32px', maxHeight: 256, maxWidth: 1256, overflow: 'auto', scrollbarWidth: 'thin' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px', maxHeight: 256, maxWidth: 1256, overflow: 'auto', scrollbarWidth: 'thin' }}>
                 {categories.map((category, index) =>
                     <Card sx={{ minWidth: 'fit-content', backgroundColor: `${category.colorCode}`, display: 'flex', alignItems: 'center', margin: '8px' }} key={index}>
                         <Typography sx={{ paddingLeft: '10px' }} variant="button">{category.name}</Typography>
@@ -76,7 +76,7 @@ const CategoryList = ({ categories, accountExternalId }: Props) => {
                     </Card>
                 )
                 }
-                <Button sx={{ minWidth: 'fit-content' }} variant="text" size="small" onClick={openCreateModal}>Create category</Button>
+                <Button sx={{ minWidth: 'fit-content', maxHeight: '28px', margin: '8px' }} variant="outlined" size="small" onClick={openCreateModal}>Create category</Button>
             </div>
 
             <Modal open={createModalOpen} onClose={closeCreateModal}>

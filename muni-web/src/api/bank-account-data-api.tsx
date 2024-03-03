@@ -227,7 +227,9 @@ const useCreateCategory = () => {
             });
         },
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['info'] });
             queryClient.invalidateQueries({ queryKey: ['categories'] });
+            queryClient.invalidateQueries({ queryKey: ['stats'] });
         }
     });
 };

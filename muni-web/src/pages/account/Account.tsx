@@ -66,7 +66,7 @@ const Account = () => {
                 <>
                     <Card sx={{ marginBottom: '32px' }} variant="elevation">
                         <CardContent>
-                            <div style={{ display: "flex" }}>
+                            <div style={{ display: "flex", flexWrap: 'wrap' }}>
                                 <CardMedia
                                     sx={{
                                         height: 90,
@@ -110,9 +110,9 @@ const Account = () => {
                         <Card sx={{ marginBottom: '32px' }}>
                             <CardContent>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <div style={{ display: 'flex', marginBottom: '32px' }}>
+                                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                                         <DatePicker
-                                            sx={{ width: '192px', marginRight: '8px' }}
+                                            sx={{ width: '192px' }}
                                             label="From"
                                             slotProps={{ textField: { size: 'small' } }}
                                             onChange={changeFromDate}
@@ -140,8 +140,9 @@ const Account = () => {
                         </Card>
                     )}
                 </>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 
