@@ -5,7 +5,7 @@ The application is built with Java, TypeScript, Spring Boot, React and PostgreSQ
   
 The application is not deployed as of now. You will need to clone it, add application.properties file to the bank-account-data spring app with your GoCardless, Firebase and PostgreSQL authentication info. You will also need to create a config/firebase.tsx file inside muni-web with the firebaseConfig information that you get when registering a new app to Firebase Authentication.
   
-Screenshots:  
+Screenshots: (some details are censored by a black box :P)
 ![1](https://github.com/HalmaiErik/muni/assets/44140608/672a587d-7917-4ea6-ba9f-f7fa9e0ada2f)  
 
 ![2](https://github.com/HalmaiErik/muni/assets/44140608/8910f447-b535-45f4-9e9b-3b5db55ed427)  
