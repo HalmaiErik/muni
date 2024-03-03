@@ -1,5 +1,5 @@
 # Muni
-Muni is a personal finance application, as of now, available only as a web application. It lets registered users connect multiple bank accounts, getting live balance and transaction information for each one of them. Users can then categorize each transaction manually or with custom rules and analyse spending.  
+Muni is a personal finance application, available only as a web application as of now. It lets registered users connect multiple bank accounts, getting live balance and transaction information for each one of them. Users can then categorize each transaction manually or with custom rules and analyse spending.  
 
 The application is built with Java, TypeScript, Spring Boot, React and PostgreSQL. It uses Firebase Authentication for registering and authenticating each user. To connect to internet banking accounts securely GoCardless' Bank Account Data API is used. The application takes advantage of multithreading and caching to optimize response time.  
   
